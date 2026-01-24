@@ -75,7 +75,7 @@ export const signupService = async (userData) => {
       password: hashed,
       role: role === VALID_ROLES.admin ? VALID_ROLES.user : role,
       phone,
-      cv: cvImage,
+      cvImage,
     });
 
     const { password, ...safeUser } = newUser;
