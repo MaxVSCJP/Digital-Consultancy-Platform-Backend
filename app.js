@@ -8,13 +8,16 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import "./Models/Associations.js";
-import passport from "./Config/PassportConfig.js";
+import passport from "./Configs/PassportConfig.js";
 
 import ErrorHandler from "./Middlewares/ErrorHandlerMW.js";
 import { generateCSRF } from "./Middlewares/CSRFMW.js";
 import { logFormat, stream } from "./Middlewares/MorganLogsMW.js";
 
 import AuthRoutes from "./Routes/AuthRoutes.js";
+import BookingRoutes from "./Routes/BookingRoutes.js";
+import AvailabilityRoutes from "./Routes/AvailabilityRoutes.js";
+import NotificationRoutes from "./Routes/NotificationRoutes.js";
 
 const app = express();
 
@@ -78,6 +81,9 @@ app.use(
 );
 
 app.use("/auth", AuthRoutes);
+app.use("/bookings", BookingRoutes);
+app.use("/availability", AvailabilityRoutes);
+app.use("/notifications", NotificationRoutes);
 
 app.get("/init", generateCSRF, (req, res) => {
   res.json({ message: "CSRF token set" });

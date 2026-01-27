@@ -4,7 +4,7 @@ import path from "path";
 import dotenv from "dotenv";
 dotenv.config();
 
-import { origin } from "../Config/ProDevConfig.js";
+import { origin } from "../Configs/ProDevConfig.js";
 import { invalidateCloudflareCache } from "./CloudflareUtils.js";
 
 const uploadDir = process.env.UPLOAD_DIR || "./Uploads";

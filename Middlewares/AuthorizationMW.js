@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
-import createError from "../Utils/CreateErrors.js";
+import createError from "../Utils/CreateErrorsUtils.js";
 
 dotenv.config();
 

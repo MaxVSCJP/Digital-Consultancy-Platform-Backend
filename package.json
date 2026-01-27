@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "This repo contains the backend code for a Digital Consultancy Platform for Entreupreneurs in Ethiopia project",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "jest",
-    "start": "node server.js"
+    "start": "node server.js",
+    "run": "nodemon server.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

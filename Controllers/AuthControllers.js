@@ -1,21 +1,17 @@
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-import User from "../Models/UserModel.js";
-import createError from "../Utils/CreateErrors.js";
-import { saveProfileImage, saveCVImage } from "../Utils/SaveFilesUtils.js";
+import createError from "../Utils/CreateErrorsUtils.js";
 import {
   secure,
   frontendOrigin,
   adminRedirect,
   domain,
-} from "../Config/prodevConfig.js";
+} from "../Configs/ProDevConfig.js";
 import {
   loginService,
   signupService,
-  VALID_ROLES,
 } from "../Services/AuthServices.js";
 
 const cookieSameSite = secure ? "none" : "lax";
@@ -56,7 +52,7 @@ export const googleAuth = (req, res, next) => {
     },
   );
 
-  if (req.user.role in redirectRouting.keys()) {
+  if (Object.keys(redirectRouting).includes(req.user.role)) {
     res.redirect(redirectRouting[req.user.role] || frontendOrigin);
   } else {
     return next(createError(400, "Invalid role specified"));

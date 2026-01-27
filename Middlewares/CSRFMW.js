@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 import createErrors from "../Utils/CreateErrorsUtils.js";
-import { secure, domain } from "../Config/ProDevConfig.js";
+import { secure, domain } from "../Configs/ProDevConfig.js";
 
 export const generateCSRF = (req, res) => {
   let csrfToken = req.cookies.csrfToken;

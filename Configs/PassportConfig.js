@@ -5,7 +5,7 @@ dotenv.config();
 
 import User from "../Models/UserModel.js";
 import { Op } from "sequelize";
-import createError from "../Utils/CreateErrors.js";
+import createError from "../Utils/CreateErrorsUtils.js";
 import { callbackURL } from "./ProDevConfig.js";
 import {
   DEFAULT_ROLE,

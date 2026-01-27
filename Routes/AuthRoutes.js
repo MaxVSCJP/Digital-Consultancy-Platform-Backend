@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 
-import passport from "../Config/PassportConfig.js";
+import passport from "../Configs/PassportConfig.js";
 import {
   signup,
   login,

@@ -1,4 +1,4 @@
-import redisClient from "../Config/RedisClient.js";
+import redisClient from "../Configs/RedisClient.js";
 
 // Configurable TTL in seconds; defaults to 60s for short-lived caches
 const DEFAULT_TTL = parseInt(process.env.CONTENT_CACHE_TTL || "60", 10);

@@ -12,7 +12,7 @@ import {
   CONTENT_DB_NAME,
   CONTENT_DB_USER,
   CONTENT_DB_PASSWORD,
-} from "../Config/prodevConfig.js";
+} from "./ProDevConfig.js";
 
 const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
   host: process.env.DB_HOST,
@@ -69,14 +69,14 @@ sequelize
   .then(() => console.log("Connected to main MySQL database"))
   .catch((err) => console.error("Unable to connect to MySQL:", err));
 
-sequelizeLogs
-  .authenticate()
-  .then(() => console.log("Connected to logs database"))
-  .catch((err) => console.error("Unable to connect to logs databases:", err));
+// sequelizeLogs
+//   .authenticate()
+//   .then(() => console.log("Connected to logs database"))
+//   .catch((err) => console.error("Unable to connect to logs databases:", err));
 
-sequelizeContent
-  .authenticate()
-  .then(() => console.log("Connected to content database"))
-  .catch((err) => console.error("Unable to connect to content database:", err));
+// sequelizeContent
+//   .authenticate()
+//   .then(() => console.log("Connected to content database"))
+//   .catch((err) => console.error("Unable to connect to content database:", err));
 
 export { sequelize, sequelizeLogs, sequelizeContent };
