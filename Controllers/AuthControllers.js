@@ -43,6 +43,7 @@ export const googleAuth = (req, res, next) => {
     "userInfo",
     JSON.stringify({
       name: req.user.name,
+      email: req.user.email,
       profileImage: req.user.profileImage,
       role: req.user.role,
     }),
@@ -83,6 +84,7 @@ export const login = async (req, res, next) => {
     const { user, token } = await loginService(email, password);
     const userInfoCookie = {
       name: user.name,
+      email: user.email,
       profileImage: user.profileImage,
       role: user.role,
     };

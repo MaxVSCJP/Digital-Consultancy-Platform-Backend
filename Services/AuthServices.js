@@ -1,3 +1,12 @@
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+import User from "../Models/UserModel.js";
+import createError from "../Utils/CreateErrorsUtils.js";
+import { saveCVImage } from "../Utils/SaveFilesUtils.js";
+
+const ADMIN_PANEL_ROLES = new Set(["admin"]);
+
 export const DEFAULT_ROLE = "user";
 
 export const VALID_ROLES = {
@@ -27,8 +36,13 @@ export const buildUserAuthPayload = (user) => {
 };
 
 export const loginService = async (email, password) => {
+  const normalizedEmail = email?.trim().toLowerCase();
+  if (!normalizedEmail) {
+    throw createError(400, "Email is required");
+  }
+
   const user = await User.findOne({
-    where: { email: email },
+    where: { email: normalizedEmail },
     attributes: ["id", "name", "password", "role", "profileImage"],
   });
   if (!user) throw createError(404, "User not found");
@@ -45,43 +59,81 @@ export const loginService = async (email, password) => {
 };
 
 export const signupService = async (userData) => {
-  const { name, email, password, role, phone } = userData;
+  const {
+    userName,
+    email,
+    password,
+    role,
+    phoneNumber,
+    BusinessName,
+    BusinessAddress,
+    BusinessType,
+    Business: businessArea,
+    TIN,
+    agreedToTerms,
+    file,
+  } = userData;
 
-  let cvImage = null;
+  const normalizedEmail = email?.trim().toLowerCase();
+  if (!normalizedEmail) {
+    throw createError(400, "Email is required");
+  }
 
-  // Handle CV image
-  if (userData) {
+  if (!userName) {
+    throw createError(400, "Full name is required");
+  }
+
+  const normalizedRole = typeof role === "string" ? role.toLowerCase() : undefined;
+  const sanitizedRole = normalizedRole && VALID_ROLES[normalizedRole]
+    ? normalizedRole
+    : DEFAULT_ROLE;
+  const resolvedRole = sanitizedRole === VALID_ROLES.admin ? DEFAULT_ROLE : sanitizedRole;
+  const hasAgreed = agreedToTerms === true || agreedToTerms === "true";
+
+  let identityDocumentUrl = null;
+  if (file) {
     try {
-      cvImage = await saveCVImage(userData.buffer, userData.originalname);
+      identityDocumentUrl = await saveCVImage(file.buffer, file.originalname);
     } catch (error) {
-      return next(createError(500, "Could not upload CV image"));
+      throw createError(500, "Could not upload National ID file");
     }
   }
 
   try {
     const existingUser = await User.findOne({
-      where: { email },
+      where: { email: normalizedEmail },
       attributes: ["id"],
     });
     if (existingUser) {
-      return next(createError(409, "Email already in use"));
+      throw createError(409, "Email already in use");
     }
 
     const hashed = password ? await bcrypt.hash(password, 13) : null;
 
     const newUser = await User.create({
-      name,
-      email,
+      name: userName.trim(),
+      email: normalizedEmail,
       password: hashed,
-      role: role === VALID_ROLES.admin ? VALID_ROLES.user : role,
-      phone,
-      cv: cvImage,
+      role: resolvedRole,
+      phone: phoneNumber?.trim(),
+      cv: identityDocumentUrl,
+      nationalIdDocument: identityDocumentUrl,
+      businessName: BusinessName?.trim() || null,
+      businessAddress: BusinessAddress?.trim() || null,
+      businessType: BusinessType?.trim() || null,
+      businessArea: businessArea?.trim() || null,
+      tin: TIN?.trim() || null,
+      agreedToTerms: hasAgreed,
     });
 
-    const { password, ...safeUser } = newUser;
+    const safeUser = newUser.toJSON();
+    delete safeUser.password;
     return safeUser;
   } catch (error) {
     console.error("Error during signup:", error);
+    if (error.statusCode || error.status) {
+      throw error;
+    }
     throw createError(500, "Error during signup");
   }
 };

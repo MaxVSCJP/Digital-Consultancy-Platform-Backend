@@ -44,6 +44,34 @@ const User = sequelize.define(
       allowNull: true,
       unique: true,
     },
+    businessName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    businessAddress: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    businessType: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    businessArea: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    tin: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    agreedToTerms: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    nationalIdDocument: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     indexes: [{ fields: ["email"] }],
@@ -66,6 +94,8 @@ User.addHook("beforeDestroy", async (userInstance, options) => {
     {
       email: anonEmail,
       googleId: null,
+      cv: null,
+      nationalIdDocument: null,
     },
     { where: { id: userInstance.id }, ...tx }
   );
@@ -88,6 +118,8 @@ User.addHook("beforeBulkDestroy", async (options) => {
       email: sequelize.literal(`concat('deleted:', id, ':', extract(epoch FROM now())::bigint, '@deleted.digitalconsultancy')`),
       name: "Deleted user",
       phone: null,
+      cv: null,
+      nationalIdDocument: null,
     },
     { where: { id: ids }, ...tx }
   );
