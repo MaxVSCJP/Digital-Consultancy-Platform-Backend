@@ -33,7 +33,12 @@ router.get(
   passport.authenticate("google", { session: false }),
   googleAuth,
 );
-router.post("/signup", upload.single("cv"), validate(signupValidator), signup);
+router.post(
+  "/signup",
+  upload.single("nationalIdFile"),
+  validate(signupValidator),
+  signup,
+);
 
 router.post("/login", upload.single(), validate(loginValidator), login);
 router.post("/logout", logout);
