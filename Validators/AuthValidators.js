@@ -65,8 +65,8 @@ export const signupValidator = [
 
   body("TIN")
     .trim()
-    .notEmpty()
-    .withMessage("Tax identification number is required"),
+    .isLength({ max: 50 })
+    .withMessage("TIN must be 50 characters or fewer"),
 
   body("agreedToTerms")
     .custom((value) => {
