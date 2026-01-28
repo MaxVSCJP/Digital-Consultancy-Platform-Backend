@@ -65,7 +65,9 @@ export const signupValidator = [
 
   body("TIN")
     .trim()
-    .optional(),
+    .optional()
+    .isLength({ max: 50 })
+    .withMessage("TIN must be 50 characters or fewer"),
 
   body("agreedToTerms")
     .custom((value) => {

@@ -44,6 +44,7 @@ export const googleAuth = (req, res, next) => {
     "userInfo",
     JSON.stringify({
       name: req.user.name,
+      email: req.user.email,
       profileImage: req.user.profileImage,
       role: req.user.role,
     }),
