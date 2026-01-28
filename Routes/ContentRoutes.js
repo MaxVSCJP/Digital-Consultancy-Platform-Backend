@@ -10,18 +10,21 @@ import {
 
 import { verifyToken, verifyAdmin } from "../Middlewares/AuthorizationMW.js";
 
-const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
+// Setup multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-/* Users (read-only) */
+const router = express.Router();
+
+// Public route: get all content (read-only)
 router.get("/", getContentHandler);
 
-/* Admin only */
+// Admin-only routes
 router.post(
   "/",
   verifyToken,
   verifyAdmin,
-  upload.single("file"),
+  upload.single("file"), // Accept single file with field name 'file'
   createContentHandler
 );
 
@@ -29,7 +32,7 @@ router.put(
   "/:id",
   verifyToken,
   verifyAdmin,
-  upload.single("file"),
+  upload.single("file"), // Accept single file when updating
   updateContentHandler
 );
 

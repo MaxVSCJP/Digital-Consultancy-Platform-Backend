@@ -12,17 +12,26 @@ import passport from "./Configs/PassportConfig.js";
 
 import ErrorHandler from "./Middlewares/ErrorHandlerMW.js";
 import { generateCSRF } from "./Middlewares/CSRFMW.js";
-import { logFormat, stream } from "./Middlewares/MorganLogsMW.js";
+//import { logFormat, stream } from "./Middlewares/MorganLogsMW.js";
 
 import AuthRoutes from "./Routes/AuthRoutes.js";
 import BookingRoutes from "./Routes/BookingRoutes.js";
 import AvailabilityRoutes from "./Routes/AvailabilityRoutes.js";
 import NotificationRoutes from "./Routes/NotificationRoutes.js";
 import contentRoutes from "./Routes/ContentRoutes.js";
-
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 app.use("/content", contentRoutes);
+const rootPath = process.cwd(); 
+
+// 2. Link the /Uploads URL prefix to the physical Uploads folder
+app.use('/Uploads', express.static(path.join(rootPath, 'Uploads')));
+
+// DEBUG: Add this line right after to see where Node is actually looking:
+console.log("Serving static files from:", path.join(rootPath, 'Uploads'));
+
 const corsOptions = {
   origin: [
     "http://localhost:5173",
@@ -69,7 +78,7 @@ app.use(express.json());
 app.use(limiter);
 app.use(cookieParser());
 
-app.use(morgan(logFormat, { stream: stream }));
+//app.use(morgan(logFormat, { stream: stream }));
 
 app.use(
   "/Uploads/ProfileImages",
@@ -86,6 +95,7 @@ app.use("/auth", AuthRoutes);
 app.use("/bookings", BookingRoutes);
 app.use("/availability", AvailabilityRoutes);
 app.use("/notifications", NotificationRoutes);
+app.use("/content", contentRoutes);
 
 app.get("/init", generateCSRF, (req, res) => {
   res.json({ message: "CSRF token set" });
