@@ -35,6 +35,8 @@ export const googleAuth = (req, res, next) => {
     process.env.JWT_SECRET,
   );
 
+  const userInfoCookie = buildUserAuthPayload(req.user);
+
   res.cookie("token", token, {
     ...baseCookieOptions,
     httpOnly: true,
@@ -42,12 +44,7 @@ export const googleAuth = (req, res, next) => {
 
   res.cookie(
     "userInfo",
-    JSON.stringify({
-      name: req.user.name,
-      email: req.user.email,
-      profileImage: req.user.profileImage,
-      role: req.user.role,
-    }),
+    userInfoCookie,
     {
       httpOnly: false,
       ...baseCookieOptions,
