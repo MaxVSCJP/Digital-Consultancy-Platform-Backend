@@ -4,16 +4,33 @@ import {
   updateContent,
   deleteContent,
 } from "../Services/ContentService.js";
-
 import { saveImage } from "../Utils/SaveFilesUtils.js";
 
 export const createContentHandler = async (req, res, next) => {
-    console.log("Body:", req.body); 
-  console.log("File:", req.file);
   try {
+    const { title, description, category, contentType } = req.body;
+
+    if (!title || !category || !contentType) {
+      return res.status(400).json({
+        message: "title, category and contentType are required",
+      });
+    }
+
+    if (!["file", "article"].includes(contentType)) {
+      return res.status(400).json({
+        message: "contentType must be 'file' or 'article'",
+      });
+    }
+
     let fileUrl = null;
 
-    if (req.file) {
+    if (contentType === "file") {
+      if (!req.file) {
+        return res.status(400).json({
+          message: "File is required when contentType is 'file'",
+        });
+      }
+
       fileUrl = await saveImage(
         req.file.buffer,
         req.file.originalname,
@@ -22,11 +39,18 @@ export const createContentHandler = async (req, res, next) => {
       );
     }
 
+    if (contentType === "article" && !description?.trim()) {
+      return res.status(400).json({
+        message: "Description is required for article content",
+      });
+    }
+
     const content = await createContent({
-      title: req.body.title,
-      description: req.body.description,
-      category: req.body.category,
+      title,
+      description: contentType === "article" ? description : null,
+      category,
       fileUrl,
+      contentType,
       createdBy: req.user.id,
     });
 
@@ -39,10 +63,16 @@ export const createContentHandler = async (req, res, next) => {
   }
 };
 
+
 export const getContentHandler = async (req, res, next) => {
   try {
-    const { category } = req.query;
-    const content = await getAllContent(category);
+    const { category, search } = req.query;
+
+    const content = await getAllContent({
+      category,
+      search,
+    });
+
     res.status(200).json(content);
   } catch (err) {
     next(err);
