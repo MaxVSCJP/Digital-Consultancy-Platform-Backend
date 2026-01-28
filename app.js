@@ -23,13 +23,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const app = express();
-app.use("/content", contentRoutes);
+
+
 const rootPath = process.cwd(); 
-
-// 2. Link the /Uploads URL prefix to the physical Uploads folder
 app.use('/Uploads', express.static(path.join(rootPath, 'Uploads')));
-
-// DEBUG: Add this line right after to see where Node is actually looking:
 console.log("Serving static files from:", path.join(rootPath, 'Uploads'));
 
 const corsOptions = {
