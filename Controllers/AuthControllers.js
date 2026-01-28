@@ -10,6 +10,7 @@ import {
   domain,
 } from "../Configs/ProDevConfig.js";
 import {
+  buildUserAuthPayload,
   loginService,
   signupService,
 } from "../Services/AuthServices.js";
@@ -81,11 +82,7 @@ export const login = async (req, res, next) => {
 
   try {
     const { user, token } = await loginService(email, password);
-    const userInfoCookie = {
-      name: user.name,
-      profileImage: user.profileImage,
-      role: user.role,
-    };
+    const userInfoCookie = buildUserAuthPayload(user);
 
     res.cookie("token", token, {
       httpOnly: true,

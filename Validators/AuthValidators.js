@@ -65,8 +65,7 @@ export const signupValidator = [
 
   body("TIN")
     .trim()
-    .notEmpty()
-    .withMessage("Tax identification number is required"),
+    .optional(),
 
   body("agreedToTerms")
     .custom((value) => {

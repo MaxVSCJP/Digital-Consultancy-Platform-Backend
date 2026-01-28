@@ -27,6 +27,8 @@ const corsOptions = {
   origin: [
     "http://localhost:5173",
     "http://localhost:5174",
+    "http://localhost:8080",
+    "http://localhost:8081",
   ],
   optionsSuccessStatus: 200,
   credentials: true,
@@ -70,6 +72,7 @@ app.use(limiter);
 app.use(cookieParser());
 
 app.use(morgan(logFormat, { stream: stream }));
+app.use(morgan("dev"));
 
 app.use(
   "/Uploads/ProfileImages",

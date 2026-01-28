@@ -10,12 +10,10 @@ async function server() {
   try {
     await Promise.all([
       sequelize.authenticate(),
-      sequelizeContent.authenticate(),
     ]);
 
     await Promise.all([
       sequelize.sync({ alter: true }),
-      sequelizeContent.sync({ alter: true }),
     ]);
 
     app.listen(PORT, () => {

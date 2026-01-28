@@ -18,19 +18,11 @@ export const VALID_ROLES = {
 export const isAdminPanelRole = (role) => ADMIN_PANEL_ROLES.has(role);
 
 export const buildUserAuthPayload = (user) => {
-  const profile = user?.profile || {};
-  const fullName = profile.full_name?.trim();
-  const splitName = [profile.first_name, profile.last_name]
-    .filter(Boolean)
-    .join(" ")
-    .trim();
-  const resolvedName = fullName || splitName || user.email;
-
   return {
     id: user.id,
     email: user.email,
-    name: resolvedName,
-    avatar: profile.avatar_url || null,
+    name: user.name,
+    profileImage: user.profileImage || null,
     role: user.role || DEFAULT_ROLE,
   };
 };
@@ -83,11 +75,14 @@ export const signupService = async (userData) => {
     throw createError(400, "Full name is required");
   }
 
-  const normalizedRole = typeof role === "string" ? role.toLowerCase() : undefined;
-  const sanitizedRole = normalizedRole && VALID_ROLES[normalizedRole]
-    ? normalizedRole
-    : DEFAULT_ROLE;
-  const resolvedRole = sanitizedRole === VALID_ROLES.admin ? DEFAULT_ROLE : sanitizedRole;
+  const normalizedRole =
+    typeof role === "string" ? role.toLowerCase() : undefined;
+  const sanitizedRole =
+    normalizedRole && VALID_ROLES[normalizedRole]
+      ? normalizedRole
+      : DEFAULT_ROLE;
+  const resolvedRole =
+    sanitizedRole === VALID_ROLES.admin ? DEFAULT_ROLE : sanitizedRole;
   const hasAgreed = agreedToTerms === true || agreedToTerms === "true";
 
   let identityDocumentUrl = null;
