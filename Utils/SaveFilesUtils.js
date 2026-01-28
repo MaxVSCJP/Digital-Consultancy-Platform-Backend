@@ -15,7 +15,7 @@ const ensureDirectory = (dirPath) => {
   }
 };
 
-const saveImage = async (
+export const saveImage = async (
   imageBuffer,
   originalname,
   saveFolderName,

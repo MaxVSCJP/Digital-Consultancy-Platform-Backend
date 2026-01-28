@@ -18,9 +18,11 @@ import AuthRoutes from "./Routes/AuthRoutes.js";
 import BookingRoutes from "./Routes/BookingRoutes.js";
 import AvailabilityRoutes from "./Routes/AvailabilityRoutes.js";
 import NotificationRoutes from "./Routes/NotificationRoutes.js";
+import contentRoutes from "./Routes/ContentRoutes.js";
+
 
 const app = express();
-
+app.use("/content", contentRoutes);
 const corsOptions = {
   origin: [
     "http://localhost:5173",
