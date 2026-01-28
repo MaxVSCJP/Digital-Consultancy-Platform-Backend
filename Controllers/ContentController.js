@@ -8,6 +8,8 @@ import {
 import { saveImage } from "../Utils/SaveFilesUtils.js";
 
 export const createContentHandler = async (req, res, next) => {
+    console.log("Body:", req.body); 
+  console.log("File:", req.file);
   try {
     let fileUrl = null;
 
