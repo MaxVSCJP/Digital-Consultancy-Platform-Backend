@@ -5,10 +5,9 @@ const handleError = (err, req, res, next) => {
   console.error(`Error: ${message}\nStatus: ${status}\nStack: ${stack}`);
   console.error(err);
   return res.status(status).json({
-    success: false,
-    status,
+    status: "error",
     message,
-    stack,
+    stack: process.env.NODE_ENV === "development" ? stack : undefined,
   });
 };
 

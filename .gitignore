@@ -139,3 +139,25 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 Uploads/
+verify-fail-fixes.js
+test-login-api.js
+test-frontend.html
+test-format-detection.js
+test-database.sql
+SETUP.md
+PROFILE-MODULE.md
+POSTMAN-GUIDE.md
+PERMISSIONS.md
+migrate-names.js
+inspect-db.js
+fix-db-data.js
+debug-status.js
+create-admin.js
+CONNECTION-TEST.md
+cleanup-indexes.js
+check-user.js
+check-logs.js
+check-indexes.js
+check-documents.js
+check-db.js
+check-banned.js

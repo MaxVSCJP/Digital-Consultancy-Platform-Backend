@@ -4,10 +4,15 @@ const imageSize = 3;
 
 
 export const signupValidator = [
-  body("name")
+  body("firstName")
     .trim()
     .notEmpty()
-    .withMessage("Name is required"),
+    .withMessage("First name is required"),
+
+  body("lastName")
+    .trim()
+    .notEmpty()
+    .withMessage("Last name is required"),
 
   body("email")
     .trim()
@@ -27,8 +32,8 @@ export const signupValidator = [
   body("role")
     .notEmpty()
     .withMessage("Role is required")
-    .isIn(["user", "admin", "consultant"])
-    .withMessage("Role must be user, admin, or consultant"),
+    .isIn(["client", "consultant", "admin", "mediaManager", "superAdmin"])
+    .withMessage("Role must be client, consultant, admin, mediaManager, or superAdmin"),
 
   body("phone")
     .notEmpty()

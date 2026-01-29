@@ -4,14 +4,16 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import User from "../Models/UserModel.js";
+import Permission from "../Models/PermissionModel.js";
 import { Op } from "sequelize";
-import createError from "../Utils/CreateErrors.js";
+import createError from "../Utils/CreateErrorsUtils.js";
 import { callbackURL } from "./ProDevConfig.js";
 import {
   DEFAULT_ROLE,
   VALID_ROLES,
   buildUserAuthPayload,
 } from "../Services/AuthServices.js";
+import { getDefaultPermissions } from "./PermissionsConfig.js";
 
 const findOrCreateUser = async (profile, role = DEFAULT_ROLE) => {
   const googleId = profile.id;
@@ -53,16 +55,14 @@ const findOrCreateUser = async (profile, role = DEFAULT_ROLE) => {
       email &&
       existingUser.email === email
     ) {
-      const updatedUser = await User.update({
-        where: { id: existingUser.id },
-        data: {
-          googleId,
-          name: existingUser.name || displayName,
-          profileImage: avatar || existingUser.profileImage,
-        },
+      await existingUser.update({
+        googleId,
+        firstName: existingUser.firstName || profile.name?.givenName || displayName,
+        lastName: existingUser.lastName || profile.name?.familyName || null,
+        profilePicture: avatar || existingUser.profilePicture,
       });
 
-      return buildUserAuthPayload(updatedUser);
+      return buildUserAuthPayload(existingUser);
     }
 
     // Create new account (Google-only users have no password)
@@ -73,19 +73,29 @@ const findOrCreateUser = async (profile, role = DEFAULT_ROLE) => {
 
       const createdUser = await User.create({
         email,
-        password_hash: null,
+        password: null,
         googleId,
         role: role,
-        name: displayName,
-        profileImage: avatar,
+        firstName: profile.name?.givenName || displayName,
+        lastName: profile.name?.familyName || null,
+        profilePicture: avatar,
+      });
+
+      // Create default permissions for the user
+      const defaultPermissions = getDefaultPermissions(role);
+      await Permission.create({
+        userId: createdUser.id,
+        ...defaultPermissions,
       });
 
       return buildUserAuthPayload(createdUser);
     } catch (e) {
       // Race-safe fallback if another request created/linked in parallel
-      if (e?.code === "P2002") {
+      if (e?.name === "SequelizeUniqueConstraintError") {
         const linked = await User.findOne({
-          where: { OR: [{ googleId }, ...(email ? [{ email }] : [])] },
+          where: {
+            [Op.or]: [{ googleId }, ...(email ? [{ email }] : [])],
+          },
         });
         if (linked) return buildUserAuthPayload(linked);
       }

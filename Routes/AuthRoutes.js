@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 
-import passport from "../Config/PassportConfig.js";
+import passport from "../Configs/PassportConfig.js";
 import {
   signup,
   login,
@@ -35,7 +35,7 @@ router.get(
 );
 router.post("/signup", upload.single("cv"), validate(signupValidator), signup);
 
-router.post("/login", upload.single(), validate(loginValidator), login);
+router.post("/login", upload.none(), validate(loginValidator), login);
 router.post("/logout", logout);
 
 export default router;

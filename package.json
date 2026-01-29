@@ -2,6 +2,7 @@
   "name": "digital-consultancy-platform-backend",
   "version": "1.0.0",
   "description": "This repo contains the backend code for a Digital Consultancy Platform for Entreupreneurs in Ethiopia project",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "test": "jest",
@@ -37,5 +38,8 @@
   "bugs": {
     "url": "https://github.com/MaxVSCJP/Digital-Consultancy-Platform-Backend/issues"
   },
-  "homepage": "https://github.com/MaxVSCJP/Digital-Consultancy-Platform-Backend#readme"
+  "homepage": "https://github.com/MaxVSCJP/Digital-Consultancy-Platform-Backend#readme",
+  "devDependencies": {
+    "jest": "^30.2.0"
+  }
 }

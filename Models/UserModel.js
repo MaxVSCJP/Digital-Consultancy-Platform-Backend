@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../Config/database.js";
+import { sequelize } from "../Configs/DatabaseConfig.js";
 
 const User = sequelize.define(
   "User",
@@ -9,12 +9,12 @@ const User = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    firstName: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
     },
-    referenceName: {
-      type: DataTypes.STRING,
+    lastName: {
+      type: DataTypes.STRING(100),
       allowNull: true,
     },
     email: {
@@ -27,33 +27,50 @@ const User = sequelize.define(
       allowNull: true,
     },
     role: {
-      type: DataTypes.ENUM("client", "pro", "admin", "mediaManager", "superAdmin"),
+      type: DataTypes.ENUM("client", "consultant", "admin", "mediaManager", "superAdmin"),
       defaultValue: "client",
       allowNull: false,
     },
-    gender: {
-      type: DataTypes.ENUM("Male", "Female", "Other"),
-      allowNull: true,
-    },
-    bio: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    profileImage: {
+    phone: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    idPhoto: {
-      type: DataTypes.STRING,
+    profilePicture: {
+      type: DataTypes.STRING(500),
       allowNull: true,
     },
-    referenceIdPhoto: {
-      type: DataTypes.STRING,
+    timezone: {
+      type: DataTypes.STRING(50),
+      defaultValue: "UTC",
+    },
+    accountStatus: {
+      type: DataTypes.ENUM("active", "suspended", "pending", "inactive", "banned"),
+      defaultValue: "active",
+    },
+    profileCompletionPercentage: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    verificationStatus: {
+      type: DataTypes.ENUM("unverified", "pending", "verified", "rejected"),
+      defaultValue: "unverified",
+    },
+    rejectionCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    lastProfileUpdate: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
-    proofOfWork: {
+    emailVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    googleId: {
       type: DataTypes.STRING,
       allowNull: true,
+      unique: true,
     },
     cv: {
       type: DataTypes.STRING,
@@ -75,96 +92,17 @@ const User = sequelize.define(
       ),
       allowNull: true,
     },
-    address: {
-      type: DataTypes.STRING,
+    businessName: {
+      type: DataTypes.STRING(255),
       allowNull: true,
     },
-    city: {
-      type: DataTypes.STRING,
+    businessAddress: {
+      type: DataTypes.TEXT,
       allowNull: true,
-    },
-    nationality: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    referencePhone: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    // Extended portfolio fields
-    title: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    hourlyRate: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    availability: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    experienceYears: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    linkedinUrl: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    category: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    // Nested/complex structures as JSON
-    about: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    education: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    workExperience: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    skills: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    portfolioProjects: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    googleId: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true,
-    },
-    dateOfBirth: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-    },
-    verificationRequested: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-      allowNull: false,
-    },
-    verified: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-      allowNull: false,
     },
   },
   {
-    indexes: [{ fields: ["email"] }, { fields: ["service"] }],
-  },
-  {
+    indexes: [{ fields: ["service"] }],
     timestamps: true,
     createdAt: "createdAt",
     updatedAt: "updatedAt",
@@ -192,17 +130,10 @@ User.addHook("beforeBulkDestroy", async (options) => {
   const tx = options && options.transaction ? { transaction: options.transaction } : {};
   if (!options || !options.where || !options.where.id) return;
   const ids = Array.isArray(options.where.id) ? options.where.id : [options.where.id];
-  const updates = ids.map((id) => ({
-    id,
-    email: `deleted:${id}:${Date.now()}@deleted.sirabizu`,
-    name: "Deleted user",
-    phone: null,
-  }));
-  // simpler: run a single update for matching ids
+  
   await User.update(
     {
       email: sequelize.literal(`concat('deleted:', id, ':', extract(epoch FROM now())::bigint, '@deleted.sirabizu')`),
-      name: "Deleted user",
       phone: null,
     },
     { where: { id: ids }, ...tx }

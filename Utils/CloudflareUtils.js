@@ -1,4 +1,4 @@
-import { origin } from "../Config/ProDevConfig.js";
+import { origin } from "../Configs/ProDevConfig.js";
 
 // Cloudflare config via env vars to avoid hardcoding
 const CF_API_TOKEN = process.env.CF_API_TOKEN; // API Token with Zone.Cache Purge permissions

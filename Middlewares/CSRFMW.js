@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 import createErrors from "../Utils/CreateErrorsUtils.js";
-import { secure, domain } from "../Config/ProDevConfig.js";
+import { secure, domain } from "../Configs/ProDevConfig.js";
 
 export const generateCSRF = (req, res) => {
   let csrfToken = req.cookies.csrfToken;
@@ -18,6 +18,20 @@ export const generateCSRF = (req, res) => {
 };
 
 export const verifyCSRF = (req, res, next) => {
+  // Skip CSRF for safe methods (FR-SEC-01)
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+    return next();
+  }
+
+  // Development Bypass (for Postman/Local Testing)
+  const isDev = process.env.NODE_ENV !== "production";
+  const skipHeader = req.headers["x-skip-csrf"] === "true";
+  const skipEnv = process.env.SKIP_CSRF_PROTECTION === "true";
+
+  if (isDev && (skipHeader || skipEnv)) {
+    return next();
+  }
+
   const tokenFromCookie = req.cookies.csrfToken;
   const tokenFromHeader = req.headers["x-csrf-token"];
 

@@ -4,14 +4,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import User from "../Models/UserModel.js";
-import createError from "../Utils/CreateErrors.js";
+import createError from "../Utils/CreateErrorsUtils.js";
 import { saveProfileImage, saveCVImage } from "../Utils/SaveFilesUtils.js";
 import {
   secure,
   frontendOrigin,
   adminRedirect,
   domain,
-} from "../Config/prodevConfig.js";
+} from "../Configs/ProDevConfig.js";
 import {
   loginService,
   signupService,
@@ -27,14 +27,27 @@ const baseCookieOptions = {
 };
 
 const redirectRouting = {
-  user: `${frontendOrigin}/userDashboard`,
-  admin: adminRedirect,
+  client: `${frontendOrigin}/clientDashboard`,
   consultant: `${frontendOrigin}/consultantDashboard`,
+  admin: adminRedirect,
+  mediaManager: `${frontendOrigin}/mediaDashboard`,
+  superAdmin: adminRedirect,
 };
 
 export const googleAuth = (req, res, next) => {
+  // Check account status
+  if (req.user.accountStatus === "suspended") {
+    return next(createError(403, "Your account is suspended. Please contact support."));
+  }
+  if (req.user.accountStatus === "banned") {
+    return next(createError(403, "Your account has been permanently banned."));
+  }
+  if (req.user.accountStatus === "inactive") {
+    return next(createError(403, "Your account is inactive. Please reactivate it to login."));
+  }
+
   const token = jwt.sign(
-    { id: req.user.id, name: req.user.name, role: req.user.role },
+    { id: req.user.id, firstName: req.user.firstName, lastName: req.user.lastName, role: req.user.role },
     process.env.JWT_SECRET,
   );
 
@@ -46,8 +59,9 @@ export const googleAuth = (req, res, next) => {
   res.cookie(
     "userInfo",
     JSON.stringify({
-      name: req.user.name,
-      profileImage: req.user.profileImage,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      profilePicture: req.user.profilePicture,
       role: req.user.role,
     }),
     {
@@ -56,7 +70,7 @@ export const googleAuth = (req, res, next) => {
     },
   );
 
-  if (req.user.role in redirectRouting.keys()) {
+  if (req.user.role in redirectRouting) {
     res.redirect(redirectRouting[req.user.role] || frontendOrigin);
   } else {
     return next(createError(400, "Invalid role specified"));
@@ -71,6 +85,7 @@ export const signup = async (req, res, next) => {
     });
 
     res.status(201).json({
+      status: "success",
       message: "User registered successfully",
       user: safeUser,
     });
@@ -86,8 +101,9 @@ export const login = async (req, res, next) => {
   try {
     const { user, token } = await loginService(email, password);
     const userInfoCookie = {
-      name: user.name,
-      profileImage: user.profileImage,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profilePicture: user.profilePicture,
       role: user.role,
     };
 
@@ -102,7 +118,16 @@ export const login = async (req, res, next) => {
     });
 
     res.status(200).json({
+      status: "success",
       message: "Succesfully logged in",
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture
+      }
     });
   } catch (error) {
     console.error(error);

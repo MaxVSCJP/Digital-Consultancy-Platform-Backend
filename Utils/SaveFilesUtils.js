@@ -4,7 +4,7 @@ import path from "path";
 import dotenv from "dotenv";
 dotenv.config();
 
-import { origin } from "../Config/ProDevConfig.js";
+import { origin } from "../Configs/ProDevConfig.js";
 import { invalidateCloudflareCache } from "./CloudflareUtils.js";
 
 const uploadDir = process.env.UPLOAD_DIR || "./Uploads";
@@ -15,7 +15,25 @@ const ensureDirectory = (dirPath) => {
   }
 };
 
-const saveImage = async (
+/**
+ * FR-CP-03: Virus scanning mock
+ * In a real production environment, this would integrate with ClamAV or a cloud provider API.
+ */
+export const scanForViruses = async (fileBuffer) => {
+    // Mock sleep to simulate processing
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Safety check: common "eicar" test string to simulate a detection
+    const content = fileBuffer.toString();
+    if (content.includes("X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")) {
+        console.warn("VIRUS DETECTED: Eicar test file found!");
+        return { safe: false, reason: "Virus detected (Eicar test string)" };
+    }
+    
+    return { safe: true };
+};
+
+export const saveImage = async (
   imageBuffer,
   originalname,
   saveFolderName,
@@ -23,6 +41,10 @@ const saveImage = async (
   quality = 80
 ) => {
   try {
+    // FR-CP-03: Scanning before storage
+    const scan = await scanForViruses(imageBuffer);
+    if (!scan.safe) throw new Error(scan.reason);
+
     const fileName = `${Date.now()}-${originalname}`;
     const outputDir = path.join(uploadDir, saveFolderName);
     ensureDirectory(outputDir);
@@ -37,7 +59,7 @@ const saveImage = async (
     return `${origin}/Uploads/${saveFolderName}/${fileName}`;
   } catch (error) {
     console.error("Error saving image:", error);
-    throw new Error("Failed to save image");
+    throw error;
   }
 };
 
@@ -45,8 +67,38 @@ export const saveProfileImage = async (imageBuffer, originalname) => {
   return saveImage(imageBuffer, originalname, "ProfileImages");
 };
 
-export const saveCVImage = async (imageBuffer, originalname) => {
-  return saveImage(imageBuffer, originalname, "CVImages");
+export const saveCVImage = async (fileBuffer, originalname, quality = 80) => {
+  try {
+    // FR-CP-03: Scanning before storage
+    const scan = await scanForViruses(fileBuffer);
+    if (!scan.safe) throw new Error(scan.reason);
+
+    const fileName = `${Date.now()}-${originalname}`;
+    const outputDir = path.join(uploadDir, "CVImages");
+    ensureDirectory(outputDir);
+
+    const filePath = path.join(outputDir, fileName);
+
+    // Check if file is PDF or Word doc - save directly without Sharp processing
+    const lowerName = originalname.toLowerCase();
+    const isDirectSave = lowerName.endsWith('.pdf') || lowerName.endsWith('.docx') || lowerName.endsWith('.doc');
+    
+    if (isDirectSave) {
+      // Save documents directly
+      await fs.promises.writeFile(filePath, fileBuffer);
+    } else {
+      // Process images with Sharp
+      await sharp(fileBuffer)
+        .resize({ width: 800 })
+        .webp({ quality: quality })
+        .toFile(filePath);
+    }
+
+    return `${origin}/Uploads/CVImages/${fileName}`;
+  } catch (error) {
+    console.error("Error saving CV file:", error);
+    throw error;
+  }
 };
 
 export const deleteFileByUrl = async (fileUrl) => {
