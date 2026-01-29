@@ -18,21 +18,13 @@ export const VALID_ROLES = {
 export const isAdminPanelRole = (role) => ADMIN_PANEL_ROLES.has(role);
 
 export const buildUserAuthPayload = (user) => {
-  const profile = user?.profile || {};
-  const fullName = profile.full_name?.trim();
-  const splitName = [profile.first_name, profile.last_name]
-    .filter(Boolean)
-    .join(" ")
-    .trim();
-  const resolvedName = fullName || splitName || user.email;
-
-  return {
+  return JSON.stringify({
     id: user.id,
     email: user.email,
-    name: resolvedName,
-    avatar: profile.avatar_url || null,
+    name: user.name,
+    profileImage: user.profileImage || null,
     role: user.role || DEFAULT_ROLE,
-  };
+  });
 };
 
 export const loginService = async (email, password) => {

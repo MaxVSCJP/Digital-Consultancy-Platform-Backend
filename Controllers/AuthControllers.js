@@ -10,6 +10,7 @@ import {
   domain,
 } from "../Configs/ProDevConfig.js";
 import {
+  buildUserAuthPayload,
   loginService,
   signupService,
 } from "../Services/AuthServices.js";
@@ -34,6 +35,8 @@ export const googleAuth = (req, res, next) => {
     process.env.JWT_SECRET,
   );
 
+  const userInfoCookie = buildUserAuthPayload(req.user);
+
   res.cookie("token", token, {
     ...baseCookieOptions,
     httpOnly: true,
@@ -41,12 +44,7 @@ export const googleAuth = (req, res, next) => {
 
   res.cookie(
     "userInfo",
-    JSON.stringify({
-      name: req.user.name,
-      email: req.user.email,
-      profileImage: req.user.profileImage,
-      role: req.user.role,
-    }),
+    userInfoCookie,
     {
       httpOnly: false,
       ...baseCookieOptions,
@@ -82,12 +80,7 @@ export const login = async (req, res, next) => {
 
   try {
     const { user, token } = await loginService(email, password);
-    const userInfoCookie = {
-      name: user.name,
-      email: user.email,
-      profileImage: user.profileImage,
-      role: user.role,
-    };
+    const userInfoCookie = buildUserAuthPayload(user);
 
     res.cookie("token", token, {
       httpOnly: true,
