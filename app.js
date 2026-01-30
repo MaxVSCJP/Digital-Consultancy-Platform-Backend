@@ -12,13 +12,15 @@ import passport from "./Configs/PassportConfig.js";
 
 import ErrorHandler from "./Middlewares/ErrorHandlerMW.js";
 import { generateCSRF } from "./Middlewares/CSRFMW.js";
-//import { logFormat, stream } from "./Middlewares/MorganLogsMW.js";
+import { logFormat, stream } from "./Middlewares/MorganLogsMW.js";
 
 import AuthRoutes from "./Routes/AuthRoutes.js";
 import BookingRoutes from "./Routes/BookingRoutes.js";
 import AvailabilityRoutes from "./Routes/AvailabilityRoutes.js";
 import NotificationRoutes from "./Routes/NotificationRoutes.js";
 import contentRoutes from "./Routes/ContentRoutes.js";
+import UserRoutes from "./Routes/UserRoutes.js";
+import AdminRoutes from "./Routes/AdminRoutes.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -76,7 +78,8 @@ app.use(express.json());
 app.use(limiter);
 app.use(cookieParser());
 
-//app.use(morgan(logFormat, { stream: stream }));
+app.use(morgan(logFormat, { stream: stream }));
+app.use(morgan("dev"));
 
 app.use(
   "/Uploads/ProfileImages",
@@ -94,6 +97,8 @@ app.use("/bookings", BookingRoutes);
 app.use("/availability", AvailabilityRoutes);
 app.use("/notifications", NotificationRoutes);
 app.use("/content", contentRoutes);
+app.use("/users", UserRoutes);
+app.use("/admin", AdminRoutes);
 
 app.get("/init", generateCSRF, (req, res) => {
   res.json({ message: "CSRF token set" });

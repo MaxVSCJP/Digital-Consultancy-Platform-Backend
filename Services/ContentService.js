@@ -17,11 +17,6 @@ export const createContent = async (data) => {
 export const getAllContent = async (params = {}) => {
   // 1. Destructure carefully with default empty values
   const { category, search } = params;
-  
-  // DEBUG: Check your terminal after you send the request
-  console.log("--- SEARCH DEBUG ---");
-  console.log("Category Received:", category);
-  console.log("Search Received:", search);
 
   const where = {};
 
@@ -39,8 +34,6 @@ export const getAllContent = async (params = {}) => {
       { description: { [Op.like]: queryTerm } }
     ];
   }
-
-  console.log("Generated Where Clause:", JSON.stringify(where, null, 2));
 
   return await Content.findAll({
     where,

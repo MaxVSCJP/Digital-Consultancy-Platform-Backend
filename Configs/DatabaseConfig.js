@@ -74,9 +74,9 @@ sequelize
 //   .then(() => console.log("Connected to logs database"))
 //   .catch((err) => console.error("Unable to connect to logs databases:", err));
 
-// sequelizeContent
-//   .authenticate()
-//   .then(() => console.log("Connected to content database"))
-//   .catch((err) => console.error("Unable to connect to content database:", err));
+sequelizeContent
+  .authenticate()
+  .then(() => console.log("Connected to content database"))
+  .catch((err) => console.error("Unable to connect to content database:", err));
 
 export { sequelize, sequelizeLogs, sequelizeContent };

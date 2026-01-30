@@ -15,6 +15,46 @@ const ensureDirectory = (dirPath) => {
   }
 };
 
+export const saveFile = async (pdfBuffer, originalname) => {
+  try {
+    const fileName = `${Date.now()}-${originalname}`;
+    const outputDir = path.join(uploadDir, "PortfolioPDFs");
+
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    const filePath = path.join(outputDir, fileName);
+
+    await fs.promises.writeFile(filePath, pdfBuffer);
+
+    return `${origin}/Uploads/PortfolioPDFs/${fileName}`;
+  } catch (error) {
+    console.error("Error saving PDF:", error);
+    throw new Error("Failed to save PDF");
+  }
+};
+
+export const saveContentFile = async (fileBuffer, originalname) => {
+  try {
+    const fileName = `${Date.now()}-${originalname}`;
+    const outputDir = path.join(uploadDir, "ContentFiles");
+
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    const filePath = path.join(outputDir, fileName);
+
+    await fs.promises.writeFile(filePath, fileBuffer);
+
+    return `${origin}/Uploads/ContentFiles/${fileName}`;
+  } catch (error) {
+    console.error("Error saving content file:", error);
+    throw new Error("Failed to save content file");
+  }
+};
+
 export const saveImage = async (
   imageBuffer,
   originalname,
@@ -29,10 +69,12 @@ export const saveImage = async (
 
     const filePath = path.join(outputDir, fileName);
 
-    await sharp(imageBuffer)
-      .resize({ width: width })
-      .webp({ quality: quality })
-      .toFile(filePath);
+    let sharpInstance = sharp(imageBuffer);
+    if (width) {
+      sharpInstance = sharpInstance.resize({ width: width });
+    }
+    await sharpInstance.webp({ quality: quality }).toFile(filePath);
+
 
     return `${origin}/Uploads/${saveFolderName}/${fileName}`;
   } catch (error) {

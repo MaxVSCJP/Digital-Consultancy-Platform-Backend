@@ -3,7 +3,15 @@ import { body, param, query } from "express-validator";
 const STATUS_VALUES = ["open", "pending", "booked", "archived"];
 
 export const createAvailabilityValidator = [
-  body("consultantId").isUUID().withMessage("Valid consultantId is required"),
+  body("consultantId").custom((value, { req }) => {
+    if (req.user?.role === "consultant") {
+      return true;
+    }
+    if (!value) {
+      throw new Error("consultantId is required");
+    }
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  }).withMessage("Valid consultantId is required"),
   body("slotStart").isISO8601().withMessage("slotStart must be a valid ISO8601 date"),
   body("slotEnd").isISO8601().withMessage("slotEnd must be a valid ISO8601 date"),
   body("timezone").optional().isString().withMessage("timezone must be a string"),

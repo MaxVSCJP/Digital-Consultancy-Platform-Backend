@@ -3,7 +3,9 @@ import express from "express";
 import validate from "../Middlewares/ValidateMW.js";
 import {
   addAvailability,
+  addMyAvailability,
   getAvailability,
+  getMyAvailability,
   modifyAvailability,
 } from "../Controllers/AvailabilityControllers.js";
 import {
@@ -11,10 +13,25 @@ import {
   listAvailabilityValidator,
   updateAvailabilityValidator,
 } from "../Validators/AvailabilityValidators.js";
+import { verifyConsultant, verifyToken } from "../Middlewares/AuthorizationMW.js";
 
 const router = express.Router();
 
-router.post("/", validate(createAvailabilityValidator), addAvailability);
+router.post(
+  "/",
+  verifyToken,
+  verifyConsultant,
+  validate(createAvailabilityValidator),
+  addAvailability,
+);
+router.post(
+  "/me",
+  verifyToken,
+  verifyConsultant,
+  validate(createAvailabilityValidator),
+  addMyAvailability,
+);
+router.get("/me", verifyToken, verifyConsultant, getMyAvailability);
 router.get(
   "/consultants/:consultantId",
   validate(listAvailabilityValidator),
@@ -22,6 +39,8 @@ router.get(
 );
 router.patch(
   "/:availabilityId",
+  verifyToken,
+  verifyConsultant,
   validate(updateAvailabilityValidator),
   modifyAvailability,
 );

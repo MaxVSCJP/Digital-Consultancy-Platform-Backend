@@ -3,7 +3,6 @@ import { body, param, query } from "express-validator";
 const STATUS_VALUES = ["pending", "accepted", "declined", "cancelled", "completed"];
 
 export const createBookingValidator = [
-  body("userId").isUUID().withMessage("Valid userId is required"),
   body("consultantId").isUUID().withMessage("Valid consultantId is required"),
   body("availabilityId").isUUID().withMessage("Valid availabilityId is required"),
   body("notes")

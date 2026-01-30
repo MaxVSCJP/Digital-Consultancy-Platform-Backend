@@ -12,8 +12,11 @@ import {
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar";
 
+export const isGoogleCalendarConfigured = () =>
+  Boolean(GOOGLE_CLIENT_EMAIL && GOOGLE_PRIVATE_KEY && GOOGLE_CALENDAR_ID);
+
 const ensureConfig = () => {
-  if (!GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY || !GOOGLE_CALENDAR_ID) {
+  if (!isGoogleCalendarConfigured()) {
     throw createError(500, "Google Calendar service is not configured");
   }
 };

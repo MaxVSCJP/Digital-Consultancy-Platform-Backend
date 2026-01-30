@@ -9,6 +9,12 @@ import {
 } from "../Controllers/ContentController.js";
 
 import { verifyToken, verifyAdmin } from "../Middlewares/AuthorizationMW.js";
+import validate from "../Middlewares/ValidateMW.js";
+import {
+  createContentValidator,
+  listContentValidator,
+  updateContentValidator,
+} from "../Validators/ContentValidators.js";
 
 // Setup multer for file uploads
 const storage = multer.memoryStorage();
@@ -17,7 +23,7 @@ const upload = multer({ storage });
 const router = express.Router();
 
 // Public route: get all content (read-only)
-router.get("/", getContentHandler);
+router.get("/", validate(listContentValidator), getContentHandler);
 
 // Admin-only routes
 router.post(
@@ -25,6 +31,7 @@ router.post(
   verifyToken,
   verifyAdmin,
   upload.single("file"), // Accept single file with field name 'file'
+  validate(createContentValidator),
   createContentHandler
 );
 
@@ -33,6 +40,7 @@ router.put(
   verifyToken,
   verifyAdmin,
   upload.single("file"), // Accept single file when updating
+  validate(updateContentValidator),
   updateContentHandler
 );
 

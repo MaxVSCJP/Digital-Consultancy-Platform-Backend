@@ -4,7 +4,7 @@ import {
   updateContent,
   deleteContent,
 } from "../Services/ContentService.js";
-import { saveImage } from "../Utils/SaveFilesUtils.js";
+import { saveContentFile, saveImage } from "../Utils/SaveFilesUtils.js";
 
 export const createContentHandler = async (req, res, next) => {
   try {
@@ -31,11 +31,9 @@ export const createContentHandler = async (req, res, next) => {
         });
       }
 
-      fileUrl = await saveImage(
+      fileUrl = await saveContentFile(
         req.file.buffer,
-        req.file.originalname,
-        "Content",
-        1200
+        req.file.originalname
       );
     }
 
@@ -84,11 +82,9 @@ export const updateContentHandler = async (req, res, next) => {
     let fileUrl;
 
     if (req.file) {
-      fileUrl = await saveImage(
+      fileUrl = await saveContentFile(
         req.file.buffer,
-        req.file.originalname,
-        "Content",
-        1200
+        req.file.originalname
       );
     }
 
