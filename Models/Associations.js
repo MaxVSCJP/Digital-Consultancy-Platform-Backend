@@ -2,6 +2,8 @@ import User from "./UserModel.js";
 import Booking from "./BookingModel.js";
 import Availability from "./AvailabilityModel.js";
 import Notification from "./NotificationModel.js";
+import ChatThread from "./ChatThreadModel.js";
+import ChatMessage from "./ChatMessageModel.js";
 
 User.hasMany(Booking, { foreignKey: "userId", as: "userBookings" });
 Booking.belongsTo(User, { foreignKey: "userId", as: "user" });
@@ -23,3 +25,9 @@ Notification.belongsTo(User, { foreignKey: "recipientId", as: "recipient" });
 
 Booking.hasMany(Notification, { foreignKey: "bookingId", as: "notifications" });
 Notification.belongsTo(Booking, { foreignKey: "bookingId", as: "booking" });
+
+User.hasMany(ChatThread, { foreignKey: "userId", as: "chatThreads" });
+ChatThread.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+ChatThread.hasMany(ChatMessage, { foreignKey: "threadId", as: "messages" });
+ChatMessage.belongsTo(ChatThread, { foreignKey: "threadId", as: "thread" });

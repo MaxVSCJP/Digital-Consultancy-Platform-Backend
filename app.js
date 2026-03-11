@@ -21,6 +21,8 @@ import NotificationRoutes from "./Routes/NotificationRoutes.js";
 import contentRoutes from "./Routes/ContentRoutes.js";
 import UserRoutes from "./Routes/UserRoutes.js";
 import AdminRoutes from "./Routes/AdminRoutes.js";
+import ChatRoutes from "./Routes/ChatRoutes.js";
+import AiFilesRoutes from "./Routes/AiFilesRoutes.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -35,7 +37,8 @@ const corsOptions = {
   origin: [
     "http://localhost:5173",
     "http://localhost:5174",
-    "http://localhost:8080"
+    "http://localhost:8080",
+    "http://localhost:8081",
   ],
   optionsSuccessStatus: 200,
   credentials: true,
@@ -60,6 +63,7 @@ app.use(
           "blob:",
           "http://localhost:10000",
           "http://localhost:5173",
+          "http://localhost:8081",
         ],
         scriptSrc: ["'self'"],
         styleSrc: ["'self'"],
@@ -99,6 +103,8 @@ app.use("/notifications", NotificationRoutes);
 app.use("/content", contentRoutes);
 app.use("/users", UserRoutes);
 app.use("/admin", AdminRoutes);
+app.use("/chat", ChatRoutes);
+app.use("/admin/ai-files", AiFilesRoutes);
 
 app.get("/init", generateCSRF, (req, res) => {
   res.json({ message: "CSRF token set" });

@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { sequelize, sequelizeContent } from "./Configs/DatabaseConfig.js";
+import { sequelize, sequelizeContent, sequelizeLogs } from "./Configs/DatabaseConfig.js";
 import app from "./app.js";
 
 const PORT = process.env.PORT || 10000;
@@ -11,11 +11,13 @@ async function server() {
     await Promise.all([
       sequelize.authenticate(),
       sequelizeContent.authenticate(),
+      sequelizeLogs.authenticate(),
     ]);
 
     await Promise.all([
       sequelize.sync({ alter: false }),
       sequelizeContent.sync({ alter: false }),
+      sequelizeLogs.sync({ alter: false }),
     ]);
 
     app.listen(PORT, () => {
