@@ -40,5 +40,8 @@
   "bugs": {
     "url": "https://github.com/MaxVSCJP/Digital-Consultancy-Platform-Backend/issues"
   },
-  "homepage": "https://github.com/MaxVSCJP/Digital-Consultancy-Platform-Backend#readme"
+  "homepage": "https://github.com/MaxVSCJP/Digital-Consultancy-Platform-Backend#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
 }

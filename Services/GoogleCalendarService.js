@@ -152,7 +152,7 @@ export const createCalendarEvent = async ({
 
   const calendarEndpoint = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
     GOOGLE_CALENDAR_ID,
-  )}/events?conferenceDataVersion=1`;
+  )}/events?conferenceDataVersion=1&sendUpdates=all`;
 
   return requestJson(calendarEndpoint, {
     method: "POST",
