@@ -33,15 +33,35 @@ export const signupValidator = [
     .notEmpty()
     .withMessage("Phone number is required"),
 
+  body("userAddress")
+    .trim()
+    .notEmpty()
+    .withMessage("User address is required"),
+
   body("BusinessName")
     .trim()
     .notEmpty()
     .withMessage("Business name is required"),
 
-  body("BusinessAddress")
+  body("BusinessCity")
     .trim()
     .notEmpty()
-    .withMessage("Business address is required"),
+    .withMessage("Business city is required"),
+
+  body("BusinessSubCity")
+    .trim()
+    .notEmpty()
+    .withMessage("Business sub-city is required"),
+
+  body("BusinessWereda")
+    .trim()
+    .notEmpty()
+    .withMessage("Business Wereda is required"),
+
+  body("BusinessKebele")
+    .trim()
+    .notEmpty()
+    .withMessage("Business Kebele is required"),
 
   body("BusinessType")
     .trim()

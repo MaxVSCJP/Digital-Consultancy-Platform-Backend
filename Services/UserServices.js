@@ -26,10 +26,22 @@ export const updateProfileService = async (userId, data = {}) => {
     phone: data.phone !== undefined ? data.phone.trim() : user.phone,
     businessName:
       data.businessName !== undefined ? (data.businessName?.trim() || null) : user.businessName,
-    businessAddress:
-      data.businessAddress !== undefined
-        ? (data.businessAddress?.trim() || null)
-        : user.businessAddress,
+    businessCity:
+      data.businessCity !== undefined
+        ? (data.businessCity?.trim() || null)
+        : user.businessCity,
+    businessSubCity:
+      data.businessSubCity !== undefined
+        ? (data.businessSubCity?.trim() || null)
+        : user.businessSubCity,
+    businessWereda:
+      data.businessWereda !== undefined
+        ? (data.businessWereda?.trim() || null)
+        : user.businessWereda,
+    businessKebele:
+      data.businessKebele !== undefined
+        ? (data.businessKebele?.trim() || null)
+        : user.businessKebele,
     businessType:
       data.businessType !== undefined ? (data.businessType?.trim() || null) : user.businessType,
     businessArea:
@@ -76,7 +88,10 @@ export const listConsultantsService = async ({ search } = {}) => {
       "profileImage",
       "phone",
       "businessName",
-      "businessAddress",
+      "businessCity",
+      "businessSubCity",
+      "businessWereda",
+      "businessKebele",
       "businessType",
       "businessArea",
       "tin",
@@ -97,7 +112,10 @@ export const getConsultantService = async (consultantId) => {
       "profileImage",
       "phone",
       "businessName",
-      "businessAddress",
+      "businessCity",
+      "businessSubCity",
+      "businessWereda",
+      "businessKebele",
       "businessType",
       "businessArea",
       "tin",

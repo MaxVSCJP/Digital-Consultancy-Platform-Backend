@@ -15,17 +15,41 @@ export const updateProfileValidator = [
     .notEmpty()
     .withMessage("Phone number cannot be empty"),
 
+  body("userAddress")
+    .optional()
+    .trim()
+    .isLength({ max: 300 })
+    .withMessage("User address must be 300 characters or fewer"),
+
   body("businessName")
     .optional()
     .trim()
     .isLength({ max: 200 })
     .withMessage("Business name must be 200 characters or fewer"),
 
-  body("businessAddress")
+  body("businessCity")
     .optional()
     .trim()
-    .isLength({ max: 300 })
-    .withMessage("Business address must be 300 characters or fewer"),
+    .isLength({ max: 100 })
+    .withMessage("Business city must be 100 characters or fewer"),
+
+  body("businessSubCity")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Business sub-city must be 100 characters or fewer"),
+
+  body("businessWereda")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Business Wereda must be 100 characters or fewer"),
+
+  body("businessKebele")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Business Kebele must be 100 characters or fewer"),
 
   body("businessType")
     .optional()

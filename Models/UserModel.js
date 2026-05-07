@@ -39,6 +39,10 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    userAddress: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     googleId: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -48,7 +52,19 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    businessAddress: {
+    businessCity: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    businessSubCity: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    businessWereda: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    businessKebele: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -96,6 +112,11 @@ User.addHook("beforeDestroy", async (userInstance, options) => {
       googleId: null,
       cv: null,
       nationalIdDocument: null,
+      userAddress: null,
+      businessCity: null,
+      businessSubCity: null,
+      businessWereda: null,
+      businessKebele: null,
     },
     { where: { id: userInstance.id }, ...tx }
   );
@@ -120,6 +141,11 @@ User.addHook("beforeBulkDestroy", async (options) => {
       phone: null,
       cv: null,
       nationalIdDocument: null,
+      userAddress: null,
+      businessCity: null,
+      businessSubCity: null,
+      businessWereda: null,
+      businessKebele: null,
     },
     { where: { id: ids }, ...tx }
   );
