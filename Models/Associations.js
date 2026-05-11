@@ -4,6 +4,12 @@ import Availability from "./AvailabilityModel.js";
 import Notification from "./NotificationModel.js";
 import ChatThread from "./ChatThreadModel.js";
 import ChatMessage from "./ChatMessageModel.js";
+import Goal from "./GoalModel.js";
+import Task from "./TaskModel.js";
+import UserGoal from "./UserGoalModel.js";
+import UserTaskProgress from "./UserTaskProgressModel.js";
+
+
 
 User.hasMany(Booking, { foreignKey: "userId", as: "userBookings" });
 Booking.belongsTo(User, { foreignKey: "userId", as: "user" });
@@ -31,3 +37,17 @@ ChatThread.belongsTo(User, { foreignKey: "userId", as: "user" });
 
 ChatThread.hasMany(ChatMessage, { foreignKey: "threadId", as: "messages" });
 ChatMessage.belongsTo(ChatThread, { foreignKey: "threadId", as: "thread" });
+
+Goal.hasMany(Task, { foreignKey: "goalId", onDelete: "CASCADE" });
+Task.belongsTo(Goal, { foreignKey: "goalId" });
+
+User.belongsToMany(Goal, { through: UserGoal, foreignKey: "userId" });
+Goal.belongsToMany(User, { through: UserGoal, foreignKey: "goalId" });
+
+
+UserGoal.hasMany(UserTaskProgress, { foreignKey: "userGoalId" });
+UserTaskProgress.belongsTo(UserGoal, { foreignKey: "userGoalId" });
+
+
+Task.hasMany(UserTaskProgress, { foreignKey: "taskId" });
+UserTaskProgress.belongsTo(Task, { foreignKey: "taskId" });
