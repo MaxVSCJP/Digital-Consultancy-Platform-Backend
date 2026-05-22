@@ -21,7 +21,6 @@ const upload = multer({ storage });
 
 const router = express.Router();
 
-
 router.get("/", validate(listContentValidator), getContentHandler);
 
 // Admin-only 

@@ -10,7 +10,6 @@ import UserGoal from "./UserGoalModel.js";
 import UserTaskProgress from "./UserTaskProgressModel.js";
 
 
-
 User.hasMany(Booking, { foreignKey: "userId", as: "userBookings" });
 Booking.belongsTo(User, { foreignKey: "userId", as: "user" });
 

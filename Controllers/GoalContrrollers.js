@@ -11,7 +11,6 @@ import {
   getGoalByIdService,
 } from "../Services/GoalServices.js";
 
-
 export const createGoal = async (req, res, next) => {
   try {
     const { title, description, category, tasks } = req.body;

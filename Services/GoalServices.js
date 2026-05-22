@@ -72,9 +72,6 @@ export const getUserGoalsService = async (userId) => {
   return userGoals;
 };
 
-
-
-
 export const completeTaskService = async (userGoalId, taskId) => {
   const taskProgress = await UserTaskProgress.findOne({
     where: { userGoalId, taskId },
@@ -99,7 +96,6 @@ export const completeTaskService = async (userGoalId, taskId) => {
 
   return taskProgress;
 };
-
 
 
 export const getNextTaskService = async (userGoalId) => {

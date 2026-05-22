@@ -18,17 +18,11 @@ const router = express.Router();
 
 router.post( "/",verifyToken, verifyAdmin, validate(createGoalValidator),createGoal);
 
-// USER
 router.post("/start",verifyToken,validate(startUserGoalValidator),startUserGoal);
-
 router.get("/my-goals",verifyToken,getMyGoals);
-
 router.get("/next-task/:userGoalId",verifyToken,validate(getNextTaskValidator),getNextTask);
-
 router.post("/complete-task",verifyToken,validate(completeTaskValidator),completeTask);
-
 router.get( "/",verifyToken,getAllGoals);
-
 router.get("/:id",verifyToken,getGoalById);
 
 export default router;
