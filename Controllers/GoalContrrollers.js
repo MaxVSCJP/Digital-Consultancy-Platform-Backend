@@ -1,11 +1,16 @@
 import Goal from "../Models/GoalModel.js";
 import Task from "../Models/TaskModel.js";
 import createError from "../Utils/CreateErrorsUtils.js";
-import UserGoal from "../Models/UserGoalModel.js";
-import UserTaskProgress from "../Models/UserTaskProgressModel.js";
-import { getNextTaskService } from "../Services/GoalServices.js";
-import { completeTaskService } from "../Services/GoalServices.js";
-import { getAllGoalsService,getGoalByIdService} from "../Services/GoalServices.js";
+import {
+  createGoalService,
+  assignGoalToUserService,
+  getUserGoalsService,
+  getNextTaskService,
+  completeTaskService,
+  getAllGoalsService,
+  getGoalByIdService,
+} from "../Services/GoalServices.js";
+
 
 export const createGoal = async (req, res, next) => {
   try {
@@ -15,21 +20,12 @@ export const createGoal = async (req, res, next) => {
       throw createError(400, "Title and category are required");
     }
 
-    const goal = await Goal.create({
+    const goal = await createGoalService(
       title,
       description,
       category,
-    });
-
-   
-    if (tasks && Array.isArray(tasks)) {
-      const taskData = tasks.map((t) => ({
-        ...t,
-        goalId: goal.id,
-      }));
-
-      await Task.bulkCreate(taskData);
-    }
+      tasks
+    );
 
     res.status(201).json({
       message: "Goal created successfully",
@@ -45,29 +41,10 @@ export const startUserGoal = async (req, res, next) => {
     const userId = req.user.id;
     const { goalId } = req.body;
 
-    const existing = await UserGoal.findOne({
-      where: { userId, goalId },
-    });
-
-    if (existing) {
-      throw createError(409, "Goal already started");
-    }
-
-    const userGoal = await UserGoal.create({
+    const userGoal = await assignGoalToUserService(
       userId,
-      goalId,
-      status: "in_progress",
-    });
-
-    const tasks = await Task.findAll({ where: { goalId } });
-
-    const progressRows = tasks.map((task) => ({
-      userGoalId: userGoal.id,
-      taskId: task.id,
-      isCompleted: false,
-    }));
-
-    await UserTaskProgress.bulkCreate(progressRows);
+      goalId
+    );
 
     res.status(201).json({
       message: "Goal started successfully",
@@ -82,9 +59,7 @@ export const getMyGoals = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    const goals = await UserGoal.findAll({
-      where: { userId },
-    });
+    const goals = await getUserGoalsService(userId);
 
     res.status(200).json(goals);
   } catch (err) {

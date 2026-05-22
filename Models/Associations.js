@@ -43,7 +43,12 @@ Task.belongsTo(Goal, { foreignKey: "goalId" });
 
 User.belongsToMany(Goal, { through: UserGoal, foreignKey: "userId" });
 Goal.belongsToMany(User, { through: UserGoal, foreignKey: "goalId" });
+UserGoal.belongsTo(Goal, {foreignKey: "goalId"});
 
+Goal.hasMany(UserGoal, {foreignKey: "goalId"});
+UserGoal.belongsTo(User, {foreignKey: "userId",});
+
+User.hasMany(UserGoal, {foreignKey: "userId",});
 
 UserGoal.hasMany(UserTaskProgress, { foreignKey: "userGoalId" });
 UserTaskProgress.belongsTo(UserGoal, { foreignKey: "userGoalId" });

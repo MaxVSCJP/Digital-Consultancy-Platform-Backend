@@ -4,26 +4,49 @@ import UserTaskProgress from "../Models/UserTaskProgressModel.js";
 import Goal from "../Models/GoalModel.js";
 import createError from "../Utils/CreateErrorsUtils.js";
 
-export const assignGoalToUserService = async (userId, goalId) => {
-  const goal = await Goal.findByPk(goalId);
-  if (!goal) throw createError(404, "Goal not found");
 
+export const createGoalService = async (
+  title,
+  description,
+  category,
+  tasks
+) => {
+  const goal = await Goal.create({
+    title,
+    description,
+    category,
+  });
+
+  if (tasks && Array.isArray(tasks)) {
+    const taskData = tasks.map((t) => ({
+      ...t,
+      goalId: goal.id,
+    }));
+
+    await Task.bulkCreate(taskData);
+  }
+
+  return goal;
+};
+
+export const assignGoalToUserService = async (userId, goalId) => {
   const existing = await UserGoal.findOne({
     where: { userId, goalId },
   });
 
   if (existing) {
-    throw createError(409, "Goal already assigned to user");
+    throw createError(409, "Goal already started");
   }
 
   const userGoal = await UserGoal.create({
     userId,
     goalId,
-    status: "not_started",
-    progress: 0,
+    status: "in_progress",
   });
 
-  const tasks = await Task.findAll({ where: { goalId } });
+  const tasks = await Task.findAll({
+    where: { goalId },
+  });
 
   const progressRows = tasks.map((task) => ({
     userGoalId: userGoal.id,
@@ -49,18 +72,7 @@ export const getUserGoalsService = async (userId) => {
   return userGoals;
 };
 
-export const startGoalService = async (userGoalId) => {
-  const userGoal = await UserGoal.findByPk(userGoalId);
 
-  if (!userGoal) {
-    throw createError(404, "User goal not found");
-  }
-
-  userGoal.status = "in_progress";
-  await userGoal.save();
-
-  return userGoal;
-};
 
 
 export const completeTaskService = async (userGoalId, taskId) => {
@@ -73,7 +85,6 @@ export const completeTaskService = async (userGoalId, taskId) => {
     throw createError(404, "Task not found");
   }
 
-  // optional rule: prevent skipping steps
   const nextTask = await getNextTaskService(userGoalId);
 
   if (nextTask && nextTask.id !== taskId) {

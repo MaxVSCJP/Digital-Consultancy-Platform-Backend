@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   createGoal,
   startUserGoal,
@@ -8,28 +9,26 @@ import {
   getAllGoals,
   getGoalById,
 } from "../Controllers/GoalContrrollers.js";
+import {verifyToken,verifyAdmin,} from "../Middlewares/AuthorizationMW.js";
+import validate from "../Middlewares/ValidateMW.js";
+import {createGoalValidator, startUserGoalValidator, getNextTaskValidator, completeTaskValidator,} from "../Validators/GoalValidators.js";
 
-import {
-  verifyToken,
-  verifyAdmin,
-} from "../Middlewares/AuthorizationMW.js";
 
 const router = express.Router();
 
-// ADMIN ONLY
-router.post(
-  "/",
-  verifyToken,
-  verifyAdmin,
-  createGoal
-);
+router.post( "/",verifyToken, verifyAdmin, validate(createGoalValidator),createGoal);
 
 // USER
-router.post("/start", verifyToken, startUserGoal);
-router.get("/my-goals", verifyToken, getMyGoals);
-router.get("/next-task/:userGoalId", verifyToken, getNextTask);
-router.post("/complete-task", verifyToken, completeTask);
-router.get("/", verifyToken, getAllGoals);
-router.get("/:id", verifyToken, getGoalById);
+router.post("/start",verifyToken,validate(startUserGoalValidator),startUserGoal);
+
+router.get("/my-goals",verifyToken,getMyGoals);
+
+router.get("/next-task/:userGoalId",verifyToken,validate(getNextTaskValidator),getNextTask);
+
+router.post("/complete-task",verifyToken,validate(completeTaskValidator),completeTask);
+
+router.get( "/",verifyToken,getAllGoals);
+
+router.get("/:id",verifyToken,getGoalById);
 
 export default router;
