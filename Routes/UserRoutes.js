@@ -24,7 +24,10 @@ router.patch(
   "/profile",
   verifyToken,
   authorizeRoles("user", "consultant"),
-  upload.single("profileImage"),
+  upload.fields([
+    { name: "profileImage", maxCount: 1 },
+    { name: "cv", maxCount: 1 },
+  ]),
   validate(updateProfileValidator),
   updateProfile,
 );

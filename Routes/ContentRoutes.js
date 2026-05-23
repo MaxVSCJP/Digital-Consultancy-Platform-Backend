@@ -30,7 +30,10 @@ router.post(
   "/",
   verifyToken,
   verifyAdmin,
-  upload.single("file"), // Accept single file with field name 'file'
+  upload.fields([
+    { name: "file", maxCount: 1 },
+    { name: "image", maxCount: 1 },
+  ]),
   validate(createContentValidator),
   createContentHandler
 );
@@ -39,7 +42,10 @@ router.put(
   "/:id",
   verifyToken,
   verifyAdmin,
-  upload.single("file"), // Accept single file when updating
+  upload.fields([
+    { name: "file", maxCount: 1 },
+    { name: "image", maxCount: 1 },
+  ]),
   validate(updateContentValidator),
   updateContentHandler
 );

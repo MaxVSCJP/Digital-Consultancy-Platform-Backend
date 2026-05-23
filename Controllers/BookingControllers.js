@@ -21,11 +21,25 @@ export const createBooking = async (req, res, next) => {
 
 export const getBookings = async (req, res, next) => {
   try {
+    const role = req.user?.role;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
     const filters = {
-      userId: req.query.userId,
-      consultantId: req.query.consultantId,
       status: req.query.status,
     };
+
+    if (role === "admin") {
+      filters.userId = req.query.userId;
+      filters.consultantId = req.query.consultantId;
+    } else if (role === "consultant") {
+      filters.consultantId = userId;
+    } else {
+      filters.userId = userId;
+    }
     const bookings = await listBookings(filters);
     res.json({ data: bookings });
   } catch (error) {

@@ -19,3 +19,30 @@ export const updateUserRoleValidator = [
     .isIn(ROLE_VALUES)
     .withMessage("role must be user, consultant, or admin"),
 ];
+
+export const createAdminUserValidator = [
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address")
+    .normalizeEmail(),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long"),
+  body("role")
+    .isString()
+    .isIn(ROLE_VALUES)
+    .withMessage("role must be user, consultant, or admin"),
+];
+
+export const updateUserStatusValidator = [
+  param("userId").isUUID().withMessage("Valid userId is required"),
+  body("status")
+    .isString()
+    .isIn(["active", "inactive"])
+    .withMessage("status must be active or inactive"),
+];

@@ -1,11 +1,14 @@
 import { body, query } from "express-validator";
 
 const CONTENT_TYPES = ["file", "article"];
-const ALLOWED_MIME_TYPES = [
+const IMAGE_MIME_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
   "image/webp",
+];
+
+const FILE_MIME_TYPES = [
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -39,23 +42,30 @@ export const createContentValidator = [
     .trim()
     .isIn(CONTENT_TYPES)
     .withMessage("contentType must be 'file' or 'article'"),
-  body("description").custom((value, { req }) => {
-    if (req.body.contentType === "article") {
-      if (!value || String(value).trim().length === 0) {
-        throw new Error("Description is required for article content");
-      }
+  body("description")
+    .trim()
+    .notEmpty()
+    .withMessage("Description is required"),
+  body("file").custom((value, { req }) => {
+    const fileUpload = req.files?.file?.[0];
+    if (req.body.contentType === "file" && !fileUpload) {
+      throw new Error("File is required when contentType is 'file'");
+    }
+    if (req.body.contentType === "article" && fileUpload) {
+      throw new Error("File is not allowed when contentType is 'article'");
+    }
+    if (fileUpload && !FILE_MIME_TYPES.includes(fileUpload.mimetype)) {
+      throw new Error("Unsupported file type for content upload");
     }
     return true;
   }),
-  body("file").custom((value, { req }) => {
-    if (req.body.contentType === "file" && !req.file) {
-      throw new Error("File is required when contentType is 'file'");
+  body("image").custom((value, { req }) => {
+    const imageUpload = req.files?.image?.[0];
+    if (!imageUpload) {
+      throw new Error("Cover image is required");
     }
-    if (req.body.contentType === "article" && req.file) {
-      throw new Error("File is not allowed when contentType is 'article'");
-    }
-    if (req.file && !ALLOWED_MIME_TYPES.includes(req.file.mimetype)) {
-      throw new Error("Unsupported file type for content upload");
+    if (imageUpload && !IMAGE_MIME_TYPES.includes(imageUpload.mimetype)) {
+      throw new Error("Unsupported image type for cover image");
     }
     return true;
   }),
@@ -80,8 +90,16 @@ export const updateContentValidator = [
     .trim()
     .withMessage("description must be a string"),
   body("file").custom((value, { req }) => {
-    if (req.file && !ALLOWED_MIME_TYPES.includes(req.file.mimetype)) {
+    const fileUpload = req.files?.file?.[0];
+    if (fileUpload && !FILE_MIME_TYPES.includes(fileUpload.mimetype)) {
       throw new Error("Unsupported file type for content upload");
+    }
+    return true;
+  }),
+  body("image").custom((value, { req }) => {
+    const imageUpload = req.files?.image?.[0];
+    if (imageUpload && !IMAGE_MIME_TYPES.includes(imageUpload.mimetype)) {
+      throw new Error("Unsupported image type for cover image");
     }
     return true;
   }),

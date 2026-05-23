@@ -55,6 +55,23 @@ export const saveContentFile = async (fileBuffer, originalname) => {
   }
 };
 
+export const saveCvFile = async (fileBuffer, originalname) => {
+  try {
+    const fileName = `${Date.now()}-${originalname}`;
+    const outputDir = path.join(uploadDir, "CVFiles");
+    ensureDirectory(outputDir);
+
+    const filePath = path.join(outputDir, fileName);
+
+    await fs.promises.writeFile(filePath, fileBuffer);
+
+    return `${origin}/Uploads/CVFiles/${fileName}`;
+  } catch (error) {
+    console.error("Error saving CV file:", error);
+    throw new Error("Failed to save CV file");
+  }
+};
+
 export const saveImage = async (
   imageBuffer,
   originalname,

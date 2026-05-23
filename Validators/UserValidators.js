@@ -1,6 +1,12 @@
 import { body, check, param, query } from "express-validator";
 
 const imageSize = 3;
+const cvSize = 5;
+const CV_MIME_TYPES = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
 
 export const updateProfileValidator = [
   body("name")
@@ -14,6 +20,18 @@ export const updateProfileValidator = [
     .trim()
     .notEmpty()
     .withMessage("Phone number cannot be empty"),
+
+  body("title")
+    .optional()
+    .trim()
+    .isLength({ max: 120 })
+    .withMessage("Professional title must be 120 characters or fewer"),
+
+  body("about")
+    .optional()
+    .trim()
+    .isLength({ max: 2000 })
+    .withMessage("About section must be 2000 characters or fewer"),
 
   body("userAddress")
     .optional()
@@ -72,13 +90,28 @@ export const updateProfileValidator = [
   check("profileImage")
     .optional()
     .custom((value, { req }) => {
-      if (!req.file) return true;
+      const profileImage = req.files?.profileImage?.[0];
+      if (!profileImage) return true;
       const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
-      if (!allowedTypes.includes(req.file.mimetype)) {
+      if (!allowedTypes.includes(profileImage.mimetype)) {
         throw new Error("Only JPG, JPEG, PNG, WEBP files are allowed for profile image");
       }
-      if (req.file.size > imageSize * 1024 * 1024) {
+      if (profileImage.size > imageSize * 1024 * 1024) {
         throw new Error(`Profile image size should be less than ${imageSize}MB`);
+      }
+      return true;
+    }),
+
+  check("cv")
+    .optional()
+    .custom((value, { req }) => {
+      const cvFile = req.files?.cv?.[0];
+      if (!cvFile) return true;
+      if (!CV_MIME_TYPES.includes(cvFile.mimetype)) {
+        throw new Error("Only PDF, DOC, DOCX files are allowed for CV");
+      }
+      if (cvFile.size > cvSize * 1024 * 1024) {
+        throw new Error(`CV size should be less than ${cvSize}MB`);
       }
       return true;
     }),

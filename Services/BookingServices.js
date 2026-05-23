@@ -24,12 +24,12 @@ const includeAssociations = [
   { model: Availability, as: "availability" },
 ];
 
-const BOOKING_PRICE = Number(process.env.BOOKING_PRICE || 0);
+const BOOKING_PRICE = Number(process.env.BOOKING_PRICE || 1500);
 const BOOKING_CURRENCY = process.env.BOOKING_CURRENCY || "ETB";
-const CHAPA_BASE_URL = "https://api.chapa.co/v1";
+const CHAPA_BASE_URL = process.env.CHAPA_BASE_URL || "https://api.chapa.co/v1";
 
 const getChapaSecret = () => {
-  const secret = process.env.CHAPA_API_SECRET_KEY;
+  const secret = process.env.CHAPA_API_SECRET_KEY || "CHASECK_TEST-eQagUz295iEI4eHZUdNqXdJclNtcvVEz";
   if (!secret) {
     throw createError(500, "Payment provider credentials are not configured");
   }

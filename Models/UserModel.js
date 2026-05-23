@@ -13,6 +13,14 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    about: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -25,6 +33,11 @@ const User = sequelize.define(
     role: {
       type: DataTypes.ENUM("user", "consultant", "admin"),
       defaultValue: "user",
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM("active", "inactive"),
+      defaultValue: "active",
       allowNull: false,
     },
     profileImage: {

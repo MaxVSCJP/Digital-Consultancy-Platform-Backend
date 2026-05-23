@@ -31,6 +31,11 @@ const Content = sequelizeContent.define(
       allowNull: true,
     },
 
+    imageUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
     contentType: {
       type: DataTypes.ENUM("file", "article"),
       allowNull: false,

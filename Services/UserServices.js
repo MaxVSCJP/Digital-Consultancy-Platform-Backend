@@ -1,7 +1,7 @@
 import User from "../Models/UserModel.js";
 import { Op } from "sequelize";
 import createError from "../Utils/CreateErrorsUtils.js";
-import { saveProfileImage, deleteFileByUrl } from "../Utils/SaveFilesUtils.js";
+import { saveCvFile, saveProfileImage, deleteFileByUrl } from "../Utils/SaveFilesUtils.js";
 
 export const updateProfileService = async (userId, data = {}) => {
   const user = await User.findByPk(userId);
@@ -10,6 +10,7 @@ export const updateProfileService = async (userId, data = {}) => {
   }
 
   let nextProfileImage = user.profileImage;
+  let nextCv = user.cv;
   if (data.file) {
     try {
       nextProfileImage = await saveProfileImage(data.file.buffer, data.file.originalname);
@@ -21,9 +22,22 @@ export const updateProfileService = async (userId, data = {}) => {
     }
   }
 
+  if (data.cvFile) {
+    try {
+      nextCv = await saveCvFile(data.cvFile.buffer, data.cvFile.originalname);
+      if (user.cv) {
+        await deleteFileByUrl(user.cv);
+      }
+    } catch (error) {
+      throw createError(500, "Could not upload CV");
+    }
+  }
+
   await user.update({
     name: data.name !== undefined ? data.name.trim() : user.name,
     phone: data.phone !== undefined ? data.phone.trim() : user.phone,
+    title: data.title !== undefined ? data.title.trim() : user.title,
+    about: data.about !== undefined ? data.about.trim() : user.about,
     businessName:
       data.businessName !== undefined ? (data.businessName?.trim() || null) : user.businessName,
     businessCity:
@@ -48,6 +62,7 @@ export const updateProfileService = async (userId, data = {}) => {
       data.businessArea !== undefined ? (data.businessArea?.trim() || null) : user.businessArea,
     tin: data.tin !== undefined ? (data.tin?.trim() || null) : user.tin,
     profileImage: nextProfileImage,
+    cv: nextCv,
   });
 
   const safeUser = user.toJSON();

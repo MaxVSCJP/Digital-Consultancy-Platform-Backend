@@ -9,6 +9,8 @@ import { saveContentFile, saveImage } from "../Utils/SaveFilesUtils.js";
 export const createContentHandler = async (req, res, next) => {
   try {
     const { title, description, category, contentType } = req.body;
+    const fileUpload = req.files?.file?.[0];
+    const imageUpload = req.files?.image?.[0];
 
     if (!title || !category || !contentType) {
       return res.status(400).json({
@@ -23,31 +25,51 @@ export const createContentHandler = async (req, res, next) => {
     }
 
     let fileUrl = null;
+    let imageUrl = null;
 
     if (contentType === "file") {
-      if (!req.file) {
+      if (!fileUpload) {
         return res.status(400).json({
           message: "File is required when contentType is 'file'",
         });
       }
 
       fileUrl = await saveContentFile(
-        req.file.buffer,
-        req.file.originalname
+        fileUpload.buffer,
+        fileUpload.originalname
       );
-    }
-
-    if (contentType === "article" && !description?.trim()) {
+    } else if (fileUpload) {
       return res.status(400).json({
-        message: "Description is required for article content",
+        message: "File is not allowed when contentType is 'article'",
       });
     }
 
+    if (!description?.trim()) {
+      return res.status(400).json({
+        message: "Description is required",
+      });
+    }
+
+    if (!imageUpload) {
+      return res.status(400).json({
+        message: "Cover image is required",
+      });
+    }
+
+    imageUrl = await saveImage(
+      imageUpload.buffer,
+      imageUpload.originalname,
+      "ContentImages",
+      800,
+      80
+    );
+
     const content = await createContent({
       title,
-      description: contentType === "article" ? description : null,
+      description,
       category,
       fileUrl,
+      imageUrl,
       contentType,
       createdBy: req.user.id,
     });
@@ -79,12 +101,25 @@ export const getContentHandler = async (req, res, next) => {
 
 export const updateContentHandler = async (req, res, next) => {
   try {
+    const fileUpload = req.files?.file?.[0];
+    const imageUpload = req.files?.image?.[0];
     let fileUrl;
+    let imageUrl;
 
-    if (req.file) {
+    if (fileUpload) {
       fileUrl = await saveContentFile(
-        req.file.buffer,
-        req.file.originalname
+        fileUpload.buffer,
+        fileUpload.originalname
+      );
+    }
+
+    if (imageUpload) {
+      imageUrl = await saveImage(
+        imageUpload.buffer,
+        imageUpload.originalname,
+        "ContentImages",
+        800,
+        80
       );
     }
 
@@ -93,6 +128,7 @@ export const updateContentHandler = async (req, res, next) => {
       description: req.body.description,
       category: req.body.category,
       fileUrl,
+      imageUrl,
     });
 
     res.status(200).json({

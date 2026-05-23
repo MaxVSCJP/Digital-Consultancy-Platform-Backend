@@ -21,9 +21,13 @@ const baseCookieOptions = {
 
 export const updateProfile = async (req, res, next) => {
   try {
+    const profileImage = req.files?.profileImage?.[0] ?? null;
+    const cvFile = req.files?.cv?.[0] ?? null;
     const safeUser = await updateProfileService(req.user.id, {
       name: req.body.name,
       phone: req.body.phone,
+      title: req.body.title,
+      about: req.body.about,
       businessName: req.body.businessName,
       businessCity: req.body.businessCity,
       businessSubCity: req.body.businessSubCity,
@@ -32,7 +36,8 @@ export const updateProfile = async (req, res, next) => {
       businessType: req.body.businessType,
       businessArea: req.body.businessArea,
       tin: req.body.tin,
-      file: req.file,
+      file: profileImage,
+      cvFile,
     });
 
     const token = jwt.sign(

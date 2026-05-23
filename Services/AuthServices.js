@@ -24,6 +24,9 @@ export const buildUserAuthPayload = (user) => {
     name: user.name,
     profileImage: user.profileImage || null,
     role: user.role || DEFAULT_ROLE,
+    title: user.title || null,
+    about: user.about || null,
+    cv: user.cv || null,
   });
 };
 

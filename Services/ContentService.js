@@ -9,7 +9,8 @@ export const createContent = async (data) => {
     description: data.description,
     category: data.category,
     fileUrl: data.fileUrl,
-    contentType: data.fileUrl ? "file" : "article",
+    imageUrl: data.imageUrl,
+    contentType: data.contentType,
     createdBy: data.createdBy,
   });
 };
@@ -58,11 +59,16 @@ export const updateContent = async (id, data) => {
     await deleteFileByUrl(content.fileUrl);
   }
 
+  if (data.imageUrl && content.imageUrl) {
+    await deleteFileByUrl(content.imageUrl);
+  }
+
   await content.update({
     title: data.title ?? content.title,
     description: data.description ?? content.description,
     category: data.category ?? content.category,
     fileUrl: data.fileUrl ?? content.fileUrl,
+    imageUrl: data.imageUrl ?? content.imageUrl,
     contentType: data.fileUrl ? "file" : content.contentType,
   });
 
