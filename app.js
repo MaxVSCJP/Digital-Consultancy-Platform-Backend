@@ -25,7 +25,7 @@ import ChatRoutes from "./Routes/ChatRoutes.js";
 import AiFilesRoutes from "./Routes/AiFilesRoutes.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import GoalRoutes from "./Routes/GoalRoutes.js";
 const app = express();
 
 
@@ -105,6 +105,7 @@ app.use("/users", UserRoutes);
 app.use("/admin", AdminRoutes);
 app.use("/chat", ChatRoutes);
 app.use("/admin/ai-files", AiFilesRoutes);
+app.use("/goals", GoalRoutes);
 
 app.get("/init", generateCSRF, (req, res) => {
   res.json({ message: "CSRF token set" });

@@ -16,16 +16,15 @@ import {
   updateContentValidator,
 } from "../Validators/ContentValidators.js";
 
-// Setup multer for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 const router = express.Router();
 
-// Public route: get all content (read-only)
+
 router.get("/", validate(listContentValidator), getContentHandler);
 
-// Admin-only routes
+// Admin-only 
 router.post(
   "/",
   verifyToken,
@@ -34,6 +33,7 @@ router.post(
     { name: "file", maxCount: 1 },
     { name: "image", maxCount: 1 },
   ]),
+  upload.single("file"), 
   validate(createContentValidator),
   createContentHandler
 );
@@ -46,6 +46,7 @@ router.put(
     { name: "file", maxCount: 1 },
     { name: "image", maxCount: 1 },
   ]),
+  upload.single("file"), 
   validate(updateContentValidator),
   updateContentHandler
 );
