@@ -101,6 +101,14 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    refreshTokenHash: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    refreshTokenExpiresAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     indexes: [{ fields: ["email"] }],

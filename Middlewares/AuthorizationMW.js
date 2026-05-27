@@ -6,7 +6,11 @@ import createError from "../Utils/CreateErrorsUtils.js";
 dotenv.config();
 
 export const verifyToken = (req, res, next) => {
-  const token = req.cookies.token;
+  const authHeader = req.headers.authorization;
+  const headerToken = typeof authHeader === "string" && authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : null;
+  const token = headerToken || req.cookies.token;
   if (!token) {
     return next(createError(401, "You are not logged in!"));
   }
@@ -20,7 +24,11 @@ export const verifyToken = (req, res, next) => {
 };
 
 export const attachUserIfAvailable = (req, res, next) => {
-  const token = req.cookies?.token;
+  const authHeader = req.headers.authorization;
+  const headerToken = typeof authHeader === "string" && authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : null;
+  const token = headerToken || req.cookies?.token;
   if (!token) {
     return next();
   }

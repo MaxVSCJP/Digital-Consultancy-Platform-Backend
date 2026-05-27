@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
 import User from "../Models/UserModel.js";
@@ -13,6 +14,46 @@ export const VALID_ROLES = {
   user: "user",
   admin: "admin",
   consultant: "consultant",
+};
+
+const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL || "15m";
+const REFRESH_TOKEN_TTL = process.env.REFRESH_TOKEN_TTL || "30d";
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || process.env.JWT_SECRET;
+
+const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
+
+const buildAccessToken = (user) =>
+  jwt.sign(
+    { id: user.id, name: user.name, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: ACCESS_TOKEN_TTL },
+  );
+
+const buildRefreshToken = (user) =>
+  jwt.sign(
+    { id: user.id, tokenType: "refresh" },
+    REFRESH_TOKEN_SECRET,
+    { expiresIn: REFRESH_TOKEN_TTL, jwtid: crypto.randomUUID() },
+  );
+
+const persistRefreshToken = async (userId, refreshToken) => {
+  const decoded = jwt.decode(refreshToken);
+  const refreshTokenExpiresAt = decoded?.exp ? new Date(decoded.exp * 1000) : null;
+  const refreshTokenHash = hashToken(refreshToken);
+
+  await User.update(
+    { refreshTokenHash, refreshTokenExpiresAt },
+    { where: { id: userId } },
+  );
+};
+
+const issueAuthTokens = async (user) => {
+  const accessToken = buildAccessToken(user);
+  const refreshToken = buildRefreshToken(user);
+
+  await persistRefreshToken(user.id, refreshToken);
+
+  return { accessToken, refreshToken };
 };
 
 export const isAdminPanelRole = (role) => ADMIN_PANEL_ROLES.has(role);
@@ -45,12 +86,82 @@ export const loginService = async (email, password) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw createError(400, "Incorrect password");
 
-  const token = jwt.sign(
-    { id: user.id, name: user.name, role: user.role },
-    process.env.JWT_SECRET,
-  );
+  const tokens = await issueAuthTokens(user);
 
-  return { user, token };
+  return { user, ...tokens };
+};
+
+export const refreshAuthTokens = async (refreshToken) => {
+  if (!refreshToken) {
+    throw createError(400, "Refresh token is required");
+  }
+
+  let payload;
+  try {
+    payload = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+  } catch (error) {
+    throw createError(401, "Refresh token is invalid");
+  }
+
+  if (payload?.tokenType !== "refresh") {
+    throw createError(401, "Refresh token is invalid");
+  }
+
+  const user = await User.findByPk(payload.id, {
+    attributes: ["id", "name", "role", "refreshTokenHash", "refreshTokenExpiresAt"],
+  });
+
+  if (!user || !user.refreshTokenHash) {
+    throw createError(401, "Refresh token is invalid");
+  }
+
+  if (user.refreshTokenExpiresAt && new Date(user.refreshTokenExpiresAt).getTime() < Date.now()) {
+    throw createError(401, "Refresh token has expired");
+  }
+
+  const incomingHash = hashToken(refreshToken);
+  if (incomingHash !== user.refreshTokenHash) {
+    throw createError(401, "Refresh token is invalid");
+  }
+
+  const accessToken = buildAccessToken(user);
+  const nextRefreshToken = buildRefreshToken(user);
+
+  await persistRefreshToken(user.id, nextRefreshToken);
+
+  return { accessToken, refreshToken: nextRefreshToken, user };
+};
+
+export const revokeRefreshToken = async (refreshToken) => {
+  if (!refreshToken) {
+    return;
+  }
+
+  try {
+    const payload = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+    if (!payload?.id) {
+      return;
+    }
+
+    const user = await User.findByPk(payload.id, {
+      attributes: ["id", "refreshTokenHash"],
+    });
+    if (!user || !user.refreshTokenHash) {
+      return;
+    }
+
+    const incomingHash = hashToken(refreshToken);
+    if (incomingHash !== user.refreshTokenHash) {
+      return;
+    }
+
+    await User.update(
+      { refreshTokenHash: null, refreshTokenExpiresAt: null },
+      { where: { id: user.id } },
+    );
+  } catch (error) {
+    // Ignore invalid refresh tokens during logout
+  }
 };
 
 export const signupService = async (userData) => {

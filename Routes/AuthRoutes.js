@@ -7,11 +7,13 @@ import {
   login,
   logout,
   googleAuth,
+  refreshToken,
 } from "../Controllers/AuthControllers.js";
 import validate from "../Middlewares/ValidateMW.js";
 import {
   signupValidator,
   loginValidator,
+  refreshTokenValidator,
 } from "../Validators/AuthValidators.js";
 
 const storage = multer.memoryStorage();
@@ -41,6 +43,7 @@ router.post(
 );
 
 router.post("/login", upload.single(), validate(loginValidator), login);
+router.post("/refresh", validate(refreshTokenValidator), refreshToken);
 router.post("/logout", logout);
 
 export default router;

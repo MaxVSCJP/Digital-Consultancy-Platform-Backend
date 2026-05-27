@@ -1,4 +1,4 @@
-import { body, query } from "express-validator";
+import { body, query, param } from "express-validator";
 
 const CONTENT_TYPES = ["file", "article"];
 const IMAGE_MIME_TYPES = [
@@ -27,6 +27,10 @@ export const listContentValidator = [
     .trim()
     .notEmpty()
     .withMessage("search must be a non-empty string"),
+];
+
+export const getContentByIdValidator = [
+  param("id").isUUID().withMessage("id must be a valid UUID"),
 ];
 
 export const createContentValidator = [

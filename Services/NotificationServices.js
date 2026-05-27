@@ -26,10 +26,18 @@ export const listNotificationsForRecipient = async (
   });
 };
 
-export const markNotificationRead = async (notificationId) => {
+export const markNotificationRead = async (notificationId, recipientId) => {
+  if (!recipientId) {
+    throw createError(401, "Authentication required");
+  }
+
   const notification = await Notification.findByPk(notificationId);
   if (!notification) {
     throw createError(404, "Notification not found");
+  }
+
+  if (notification.recipientId !== recipientId) {
+    throw createError(403, "You are not authorized to update this notification");
   }
 
   if (notification.read) {
@@ -37,4 +45,17 @@ export const markNotificationRead = async (notificationId) => {
   }
 
   return notification.update({ read: true });
+};
+
+export const markAllNotificationsRead = async (recipientId) => {
+  if (!recipientId) {
+    throw createError(401, "Authentication required");
+  }
+
+  const [updatedCount] = await Notification.update(
+    { read: true },
+    { where: { recipientId, read: false } },
+  );
+
+  return { updatedCount };
 };

@@ -121,3 +121,11 @@ export const loginValidator = [
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long"),
 ];
+
+export const refreshTokenValidator = [
+  body("refreshToken")
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage("refreshToken is required"),
+];

@@ -1,9 +1,10 @@
 import { param, query } from "express-validator";
 
 export const listNotificationsValidator = [
-  query("recipientId")
-    .isUUID()
-    .withMessage("recipientId query parameter is required and must be a UUID"),
+  query("unreadOnly")
+    .optional()
+    .isIn(["true", "false"])
+    .withMessage("unreadOnly must be true or false"),
   query("limit")
     .optional()
     .isInt({ min: 1, max: 200 })

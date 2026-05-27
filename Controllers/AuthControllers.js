@@ -12,6 +12,8 @@ import {
 import {
   buildUserAuthPayload,
   loginService,
+  refreshAuthTokens,
+  revokeRefreshToken,
   signupService,
 } from "../Services/AuthServices.js";
 
@@ -79,10 +81,10 @@ export const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    const { user, token } = await loginService(email, password);
+    const { user, accessToken, refreshToken } = await loginService(email, password);
     const userInfoCookie = buildUserAuthPayload(user);
 
-    res.cookie("token", token, {
+    res.cookie("token", accessToken, {
       httpOnly: true,
       ...baseCookieOptions,
     });
@@ -94,6 +96,8 @@ export const login = async (req, res, next) => {
 
     res.status(200).json({
       message: "Succesfully logged in",
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     console.error(error);
@@ -101,7 +105,25 @@ export const login = async (req, res, next) => {
   }
 };
 
+export const refreshToken = async (req, res, next) => {
+  try {
+    const { refreshToken: tokenFromBody } = req.body || {};
+    const { accessToken, refreshToken: nextRefreshToken } = await refreshAuthTokens(tokenFromBody);
+
+    res.status(200).json({
+      accessToken,
+      refreshToken: nextRefreshToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const logout = async (req, res) => {
+  const { refreshToken: tokenFromBody } = req.body || {};
+  if (tokenFromBody) {
+    await revokeRefreshToken(tokenFromBody);
+  }
   res.clearCookie("token", { ...baseCookieOptions, httpOnly: true });
   res.clearCookie("csrfToken", { ...baseCookieOptions, httpOnly: true });
   res.clearCookie("userInfo", { ...baseCookieOptions, httpOnly: true });

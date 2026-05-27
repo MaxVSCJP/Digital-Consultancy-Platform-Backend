@@ -1,5 +1,6 @@
 import {
   listNotificationsForRecipient,
+  markAllNotificationsRead,
   markNotificationRead,
 } from "../Services/NotificationServices.js";
 
@@ -9,7 +10,9 @@ export const getNotifications = async (req, res, next) => {
     const offset = Number.parseInt(req.query.offset, 10) || 0;
     const unreadOnly = req.query.unreadOnly === "true";
 
-    const notifications = await listNotificationsForRecipient(req.query.recipientId, {
+    const recipientId = req.user?.id;
+
+    const notifications = await listNotificationsForRecipient(recipientId, {
       limit,
       offset,
       unreadOnly,
@@ -23,8 +26,17 @@ export const getNotifications = async (req, res, next) => {
 
 export const setNotificationRead = async (req, res, next) => {
   try {
-    const notification = await markNotificationRead(req.params.notificationId);
+    const notification = await markNotificationRead(req.params.notificationId, req.user?.id);
     res.json({ data: notification });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const setAllNotificationsRead = async (req, res, next) => {
+  try {
+    const result = await markAllNotificationsRead(req.user?.id);
+    res.json({ data: result });
   } catch (error) {
     next(error);
   }

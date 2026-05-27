@@ -1,6 +1,7 @@
 import {
   createContent,
   getAllContent,
+  getContentById,
   updateContent,
   deleteContent,
 } from "../Services/ContentService.js";
@@ -93,6 +94,15 @@ export const getContentHandler = async (req, res, next) => {
       search,
     });
 
+    res.status(200).json(content);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getContentByIdHandler = async (req, res, next) => {
+  try {
+    const content = await getContentById(req.params.id);
     res.status(200).json(content);
   } catch (err) {
     next(err);
