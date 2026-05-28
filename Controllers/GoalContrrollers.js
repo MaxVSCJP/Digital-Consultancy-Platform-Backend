@@ -4,11 +4,13 @@ import createError from "../Utils/CreateErrorsUtils.js";
 import {
   createGoalService,
   assignGoalToUserService,
+  assignGoalsForUserProfileService,
   getUserGoalsService,
   getGoalsForUserService,
   getGoalByIdForUserService,
   getNextTaskService,
   completeTaskService,
+  undoTaskService,
   getAllGoalsService,
   getGoalByIdService,
   updateGoalService,
@@ -86,6 +88,20 @@ export const getMyGoals = async (req, res, next) => {
   }
 };
 
+export const assignMyGoals = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const assignments = await assignGoalsForUserProfileService(userId);
+
+    res.status(200).json({
+      message: "Goals assigned",
+      data: assignments,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getNextTask = async (req, res, next) => {
   try {
     const { userGoalId } = req.params;
@@ -108,6 +124,21 @@ export const completeTask = async (req, res, next) => {
 
     res.status(200).json({
       message: "Task completed",
+      result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const undoTask = async (req, res, next) => {
+  try {
+    const { userGoalId, taskId } = req.body;
+
+    const result = await undoTaskService(userGoalId, taskId);
+
+    res.status(200).json({
+      message: "Task completion undone",
       result,
     });
   } catch (err) {

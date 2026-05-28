@@ -341,6 +341,24 @@ export const completeTaskService = async (userGoalId, taskId) => {
   return taskProgress;
 };
 
+export const undoTaskService = async (userGoalId, taskId) => {
+  const taskProgress = await UserTaskProgress.findOne({
+    where: { userGoalId, taskId },
+  });
+
+  if (!taskProgress) {
+    throw createError(404, "Task not found");
+  }
+
+  taskProgress.isCompleted = false;
+  taskProgress.completedAt = null;
+  await taskProgress.save();
+
+  await calculateProgressService(userGoalId);
+
+  return taskProgress;
+};
+
 
 
 export const getNextTaskService = async (userGoalId) => {
