@@ -117,6 +117,22 @@ export const updateProfileValidator = [
     }),
 ];
 
+export const changePasswordValidator = [
+  body("oldPassword")
+    .trim()
+    .notEmpty()
+    .withMessage("Current password is required")
+    .isLength({ min: 8 })
+    .withMessage("Current password must be at least 8 characters long"),
+
+  body("newPassword")
+    .trim()
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 8 })
+    .withMessage("New password must be at least 8 characters long"),
+];
+
 export const listConsultantsValidator = [
   query("search")
     .optional()

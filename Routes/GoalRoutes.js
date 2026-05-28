@@ -8,15 +8,28 @@ import {
   completeTask,
   getAllGoals,
   getGoalById,
+  updateGoal,
+  deleteGoal,
 } from "../Controllers/GoalContrrollers.js";
 import {verifyToken,verifyAdmin,} from "../Middlewares/AuthorizationMW.js";
 import validate from "../Middlewares/ValidateMW.js";
-import {createGoalValidator, startUserGoalValidator, getNextTaskValidator, completeTaskValidator,} from "../Validators/GoalValidators.js";
+import {
+  createGoalValidator,
+  startUserGoalValidator,
+  getNextTaskValidator,
+  completeTaskValidator,
+  updateGoalValidator,
+  deleteGoalValidator,
+} from "../Validators/GoalValidators.js";
 
 
 const router = express.Router();
 
 router.post( "/",verifyToken, verifyAdmin, validate(createGoalValidator),createGoal);
+
+router.put("/:id", verifyToken, verifyAdmin, validate(updateGoalValidator), updateGoal);
+
+router.delete("/:id", verifyToken, verifyAdmin, validate(deleteGoalValidator), deleteGoal);
 
 // USER
 router.post("/start",verifyToken,validate(startUserGoalValidator),startUserGoal);

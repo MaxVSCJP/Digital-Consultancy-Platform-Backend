@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import User from "../Models/UserModel.js";
 import { Op } from "sequelize";
 import createError from "../Utils/CreateErrorsUtils.js";
@@ -68,6 +69,27 @@ export const updateProfileService = async (userId, data = {}) => {
   const safeUser = user.toJSON();
   delete safeUser.password;
   return safeUser;
+};
+
+export const changePasswordService = async (userId, { oldPassword, newPassword }) => {
+  const user = await User.findByPk(userId, { attributes: ["id", "password"] });
+  if (!user) {
+    throw createError(404, "User not found");
+  }
+
+  if (!user.password) {
+    throw createError(400, "Password update is not available for this account");
+  }
+
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isMatch) {
+    throw createError(400, "Current password is incorrect");
+  }
+
+  const hashed = await bcrypt.hash(newPassword, 13);
+  await user.update({ password: hashed });
+
+  return true;
 };
 
 export const getProfileService = async (userId) => {

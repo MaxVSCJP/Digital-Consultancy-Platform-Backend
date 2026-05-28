@@ -7,6 +7,7 @@ import { buildUserAuthPayload } from "../Services/AuthServices.js";
 import {
   getProfileService,
   updateProfileService,
+  changePasswordService,
   listConsultantsService,
   getConsultantService,
 } from "../Services/UserServices.js";
@@ -70,6 +71,19 @@ export const getProfile = async (req, res, next) => {
   try {
     const safeUser = await getProfileService(req.user.id);
     res.status(200).json({ user: safeUser });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePassword = async (req, res, next) => {
+  try {
+    await changePasswordService(req.user.id, {
+      oldPassword: req.body.oldPassword,
+      newPassword: req.body.newPassword,
+    });
+
+    res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     next(error);
   }

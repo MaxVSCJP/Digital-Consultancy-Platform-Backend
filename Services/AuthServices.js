@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import User from "../Models/UserModel.js";
 import createError from "../Utils/CreateErrorsUtils.js";
 import { saveCVImage } from "../Utils/SaveFilesUtils.js";
+import { assignGoalsForUserProfileService } from "./GoalServices.js";
 
 const ADMIN_PANEL_ROLES = new Set(["admin"]);
 
@@ -68,6 +69,14 @@ export const buildUserAuthPayload = (user) => {
     title: user.title || null,
     about: user.about || null,
     cv: user.cv || null,
+    businessName: user.businessName || null,
+    businessCity: user.businessCity || null,
+    businessSubCity: user.businessSubCity || null,
+    businessWereda: user.businessWereda || null,
+    businessKebele: user.businessKebele || null,
+    businessType: user.businessType || null,
+    businessArea: user.businessArea || null,
+    tin: user.tin || null,
   });
 };
 
@@ -79,7 +88,7 @@ export const loginService = async (email, password) => {
 
   const user = await User.findOne({
     where: { email: normalizedEmail },
-    attributes: ["id", "name", "password", "role", "profileImage"],
+    attributes: ["id", "name", "password", "role", "profileImage", "businessCity", "businessSubCity", "businessWereda", "businessType", "businessArea"],
   });
   if (!user) throw createError(404, "User not found");
 
@@ -239,6 +248,8 @@ export const signupService = async (userData) => {
       tin: TIN?.trim() || null,
       agreedToTerms: hasAgreed,
     });
+
+    await assignGoalsForUserProfileService(newUser.id);
 
     const safeUser = newUser.toJSON();
     delete safeUser.password;

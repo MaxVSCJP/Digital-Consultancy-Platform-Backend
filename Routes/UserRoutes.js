@@ -4,12 +4,14 @@ import multer from "multer";
 import {
   getProfile,
   updateProfile,
+  changePassword,
   listConsultants,
   getConsultant,
 } from "../Controllers/UserControllers.js";
 import validate from "../Middlewares/ValidateMW.js";
 import {
   updateProfileValidator,
+  changePasswordValidator,
   listConsultantsValidator,
   getConsultantValidator,
 } from "../Validators/UserValidators.js";
@@ -37,6 +39,14 @@ router.get(
   verifyToken,
   authorizeRoles("user", "consultant"),
   getProfile,
+);
+
+router.patch(
+  "/change-password",
+  verifyToken,
+  authorizeRoles("user", "consultant"),
+  validate(changePasswordValidator),
+  changePassword,
 );
 
 router.get("/consultants", validate(listConsultantsValidator), listConsultants);

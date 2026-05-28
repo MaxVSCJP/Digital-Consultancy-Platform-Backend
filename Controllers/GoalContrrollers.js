@@ -5,26 +5,45 @@ import {
   createGoalService,
   assignGoalToUserService,
   getUserGoalsService,
+  getGoalsForUserService,
+  getGoalByIdForUserService,
   getNextTaskService,
   completeTaskService,
   getAllGoalsService,
   getGoalByIdService,
+  updateGoalService,
+  deleteGoalService,
 } from "../Services/GoalServices.js";
 
 
 export const createGoal = async (req, res, next) => {
   try {
-    const { title, description, category, tasks } = req.body;
+    const {
+      title,
+      description,
+      category,
+      tasks,
+      businessArea,
+      businessType,
+    } = req.body;
 
     if (!title || !category) {
       throw createError(400, "Title and category are required");
+    }
+
+    const trimmedArea = typeof businessArea === "string" ? businessArea.trim() : "";
+    const trimmedType = typeof businessType === "string" ? businessType.trim() : "";
+    if (!trimmedArea && !trimmedType) {
+      throw createError(400, "Business area or type is required");
     }
 
     const goal = await createGoalService(
       title,
       description,
       category,
-      tasks
+      tasks,
+      businessArea,
+      businessType
     );
 
     res.status(201).json({
@@ -98,7 +117,10 @@ export const completeTask = async (req, res, next) => {
 
 export const getAllGoals = async (req, res, next) => {
   try {
-    const goals = await getAllGoalsService();
+    const isAdmin = req.user?.role === "admin";
+    const goals = isAdmin
+      ? await getAllGoalsService()
+      : await getGoalsForUserService(req.user.id);
 
     res.status(200).json({
       message: "Goals fetched successfully",
@@ -112,12 +134,43 @@ export const getAllGoals = async (req, res, next) => {
 export const getGoalById = async (req, res, next) => {
   try {
     const { id } = req.params;
-
-    const goal = await getGoalByIdService(id);
+    const isAdmin = req.user?.role === "admin";
+    const goal = isAdmin
+      ? await getGoalByIdService(id)
+      : await getGoalByIdForUserService(req.user.id, id);
 
     res.status(200).json({
       message: "Goal fetched successfully",
       goal,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateGoal = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const goal = await updateGoalService(id, req.body);
+
+    res.status(200).json({
+      message: "Goal updated successfully",
+      goal,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteGoal = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    await deleteGoalService(id);
+
+    res.status(200).json({
+      message: "Goal deleted successfully",
     });
   } catch (err) {
     next(err);

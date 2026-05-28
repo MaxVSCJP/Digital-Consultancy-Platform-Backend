@@ -33,6 +33,11 @@ const Task = sequelize.define("Task", {
     type: DataTypes.INTEGER, // 1,2,3...
     allowNull: false,
   },
+
+  mapLinks: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
 });
 
 export default Task;

@@ -22,6 +22,16 @@ const Goal = sequelize.define("Goal", {
     type: DataTypes.STRING, // e.g. "TIN", "Business Registration"
     allowNull: false,
   },
+
+  businessArea: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+
+  businessType: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 });
 
 export default Goal;
