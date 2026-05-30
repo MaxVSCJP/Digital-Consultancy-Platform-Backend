@@ -37,6 +37,11 @@ export const completeTaskValidator = [
   body("taskId").notEmpty().withMessage("Task ID is required"),
 ];
 
+export const undoTaskValidator = [
+  body("userGoalId").notEmpty().withMessage("User Goal ID is required"),
+  body("taskId").notEmpty().withMessage("Task ID is required"),
+];
+
 export const updateGoalValidator = [
   param("id").isInt({ min: 1 }).withMessage("Valid goal ID is required"),
   body("title").notEmpty().withMessage("Title is required"),

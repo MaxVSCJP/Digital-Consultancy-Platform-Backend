@@ -4,8 +4,10 @@ import {
   createGoal,
   startUserGoal,
   getMyGoals,
+  assignMyGoals,
   getNextTask,
   completeTask,
+  undoTask,
   getAllGoals,
   getGoalById,
   updateGoal,
@@ -18,6 +20,7 @@ import {
   startUserGoalValidator,
   getNextTaskValidator,
   completeTaskValidator,
+  undoTaskValidator,
   updateGoalValidator,
   deleteGoalValidator,
 } from "../Validators/GoalValidators.js";
@@ -36,9 +39,13 @@ router.post("/start",verifyToken,validate(startUserGoalValidator),startUserGoal)
 
 router.get("/my-goals",verifyToken,getMyGoals);
 
+router.post("/assign-my-goals",verifyToken,assignMyGoals);
+
 router.get("/next-task/:userGoalId",verifyToken,validate(getNextTaskValidator),getNextTask);
 
 router.post("/complete-task",verifyToken,validate(completeTaskValidator),completeTask);
+
+router.post("/undo-task",verifyToken,validate(undoTaskValidator),undoTask);
 
 router.get( "/",verifyToken,getAllGoals);
 
