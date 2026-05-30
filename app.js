@@ -23,6 +23,7 @@ import UserRoutes from "./Routes/UserRoutes.js";
 import AdminRoutes from "./Routes/AdminRoutes.js";
 import ChatRoutes from "./Routes/ChatRoutes.js";
 import AiFilesRoutes from "./Routes/AiFilesRoutes.js";
+import ReviewRoutes from "./Routes/ReviewRoutes.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import GoalRoutes from "./Routes/GoalRoutes.js";
@@ -106,6 +107,7 @@ app.use("/admin", AdminRoutes);
 app.use("/chat", ChatRoutes);
 app.use("/admin/ai-files", AiFilesRoutes);
 app.use("/goals", GoalRoutes);
+app.use("/reviews", ReviewRoutes);
 
 app.get("/init", generateCSRF, (req, res) => {
   res.json({ message: "CSRF token set" });

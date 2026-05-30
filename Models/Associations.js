@@ -8,6 +8,7 @@ import Goal from "./GoalModel.js";
 import Task from "./TaskModel.js";
 import UserGoal from "./UserGoalModel.js";
 import UserTaskProgress from "./UserTaskProgressModel.js";
+import Review from "./ReviewModel.js";
 
 
 
@@ -19,6 +20,12 @@ User.hasMany(Booking, {
   as: "consultantBookings",
 });
 Booking.belongsTo(User, { foreignKey: "consultantId", as: "consultant" });
+
+User.hasMany(Review, { foreignKey: "userId", as: "reviews" });
+Review.belongsTo(User, { foreignKey: "userId", as: "reviewer" });
+
+User.hasMany(Review, { foreignKey: "consultantId", as: "consultantReviews" });
+Review.belongsTo(User, { foreignKey: "consultantId", as: "consultant" });
 
 User.hasMany(Availability, { foreignKey: "consultantId", as: "availabilities" });
 Availability.belongsTo(User, { foreignKey: "consultantId", as: "consultantProfile" });
