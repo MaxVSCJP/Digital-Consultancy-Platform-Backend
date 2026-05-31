@@ -10,7 +10,12 @@ jest.unstable_mockModule("../../Models/AvailabilityModel.js", () => ({
   default: Availability,
 }));
 
-const { createAvailability, listAvailability, updateAvailability } = await import(
+const {
+  createAvailability,
+  listAvailability,
+  reopenExpiredAvailabilitySlots,
+  updateAvailability,
+} = await import(
   "../../Services/AvailabilityServices.js"
 );
 
@@ -59,7 +64,8 @@ describe("AvailabilityServices", () => {
   });
 
   it("lists availability with filters", async () => {
-    Availability.findAll.mockResolvedValue([]);
+    Availability.findAll.mockResolvedValueOnce([]);
+    Availability.findAll.mockResolvedValueOnce([]);
 
     await listAvailability({ consultantId: "1", status: "open" });
 
@@ -67,6 +73,26 @@ describe("AvailabilityServices", () => {
       expect.objectContaining({
         where: { consultantId: "1", status: "open" },
       })
+    );
+  });
+
+  it("reopens expired availability slots", async () => {
+    const expiredSlot = {
+      slotStart: new Date("2025-01-01T10:00:00Z"),
+      slotEnd: new Date("2025-01-01T11:00:00Z"),
+      update: jest.fn(),
+    };
+    Availability.findAll.mockResolvedValue([expiredSlot]);
+
+    await reopenExpiredAvailabilitySlots({ consultantId: "1" });
+
+    expect(expiredSlot.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "open",
+        slotStart: expect.any(Date),
+        slotEnd: expect.any(Date),
+      }),
+      {},
     );
   });
 

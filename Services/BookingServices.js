@@ -8,6 +8,7 @@ import createError from "../Utils/CreateErrorsUtils.js";
 import { sequelize } from "../Configs/DatabaseConfig.js";
 import { createNotification } from "./NotificationServices.js";
 import { createCalendarEvent, isGoogleCalendarConfigured } from "./GoogleCalendarService.js";
+import { reopenExpiredAvailabilitySlots } from "./AvailabilityServices.js";
 import { frontendOrigin, origin } from "../Configs/ProDevConfig.js";
 
 const BOOKING_STATUS = [
@@ -162,12 +163,9 @@ export const createBookingRequest = async ({
     throw createError(400, "Consultants cannot book themselves");
   }
 
-  const [user, consultant, availability] = await Promise.all([
+  const [user, consultant] = await Promise.all([
     User.findByPk(userId),
     User.findByPk(consultantId),
-    Availability.findOne({
-      where: { id: availabilityId, consultantId },
-    }),
   ]);
 
   if (!user) {
@@ -175,6 +173,12 @@ export const createBookingRequest = async ({
   }
 
   ensureConsultantRole(consultant);
+
+  await reopenExpiredAvailabilitySlots({ consultantId });
+
+  const availability = await Availability.findOne({
+    where: { id: availabilityId, consultantId },
+  });
 
   if (!availability) {
     throw createError(404, "Availability slot not found");

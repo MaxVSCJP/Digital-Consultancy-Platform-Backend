@@ -27,6 +27,7 @@ const buildService = async ({ price = "100" } = {}) => {
   const createNotification = jest.fn();
   const createCalendarEvent = jest.fn();
   const isGoogleCalendarConfigured = jest.fn();
+  const reopenExpiredAvailabilitySlots = jest.fn().mockResolvedValue([]);
 
   jest.unstable_mockModule("../../Models/BookingModel.js", () => ({
     default: Booking,
@@ -45,6 +46,9 @@ const buildService = async ({ price = "100" } = {}) => {
     createCalendarEvent,
     isGoogleCalendarConfigured,
   }));
+  jest.unstable_mockModule("../../Services/AvailabilityServices.js", () => ({
+    reopenExpiredAvailabilitySlots,
+  }));
   jest.unstable_mockModule("../../Configs/ProDevConfig.js", () => ({
     frontendOrigin: "http://frontend",
     origin: "http://api",
@@ -60,6 +64,7 @@ const buildService = async ({ price = "100" } = {}) => {
     createNotification,
     createCalendarEvent,
     isGoogleCalendarConfigured,
+    reopenExpiredAvailabilitySlots,
   };
 };
 
@@ -88,6 +93,7 @@ describe("BookingServices", () => {
       Availability,
       User,
       createNotification,
+      reopenExpiredAvailabilitySlots,
     } = await buildService();
 
     const user = {
@@ -130,6 +136,7 @@ describe("BookingServices", () => {
     });
 
     expect(Booking.create).toHaveBeenCalled();
+    expect(reopenExpiredAvailabilitySlots).toHaveBeenCalledWith({ consultantId: "consultant-1" });
     expect(availability.update).toHaveBeenCalledWith({ status: "pending" }, { transaction: {} });
     expect(createNotification).toHaveBeenCalled();
     expect(result.payment.checkout_url).toBe("http://checkout");

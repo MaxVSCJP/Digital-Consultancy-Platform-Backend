@@ -29,7 +29,6 @@ import { fileURLToPath } from 'url';
 import GoalRoutes from "./Routes/GoalRoutes.js";
 const app = express();
 
-
 const rootPath = process.cwd(); 
 app.use('/Uploads', express.static(path.join(rootPath, 'Uploads')));
 console.log("Serving static files from:", path.join(rootPath, 'Uploads'));
@@ -44,6 +43,8 @@ const corsOptions = {
   optionsSuccessStatus: 200,
   credentials: true,
 };
+
+app.set("trust proxy", 1);
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000,

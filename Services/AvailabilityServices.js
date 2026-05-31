@@ -1,5 +1,8 @@
 import Availability from "../Models/AvailabilityModel.js";
 import createError from "../Utils/CreateErrorsUtils.js";
+import { Op } from "sequelize";
+
+const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
 
 const parseDate = (value, field) => {
   const date = value instanceof Date ? value : new Date(value);
@@ -7,6 +10,60 @@ const parseDate = (value, field) => {
     throw createError(400, `${field} must be a valid date`);
   }
   return date;
+};
+
+export const reopenExpiredAvailabilitySlots = async (
+  { consultantId } = {},
+  options = {},
+) => {
+  if (!consultantId) {
+    throw createError(400, "consultantId is required to reopen availability slots");
+  }
+
+  const expiredSlots = await Availability.findAll({
+    where: {
+      consultantId,
+      status: {
+        [Op.in]: ["pending", "booked"],
+      },
+      slotEnd: {
+        [Op.lte]: new Date(),
+      },
+    },
+    ...options,
+  });
+
+  const now = new Date();
+
+  await Promise.all(
+    expiredSlots.map((slot) => {
+      const slotStart = slot.slotStart instanceof Date ? new Date(slot.slotStart) : new Date(slot.slotStart);
+      const slotEnd = slot.slotEnd instanceof Date ? new Date(slot.slotEnd) : new Date(slot.slotEnd);
+
+      if (Number.isNaN(slotStart.getTime()) || Number.isNaN(slotEnd.getTime())) {
+        return slot.update({ status: "open" }, options);
+      }
+
+      let nextStart = slotStart;
+      let nextEnd = slotEnd;
+
+      while (nextEnd <= now) {
+        nextStart = new Date(nextStart.getTime() + WEEK_IN_MS);
+        nextEnd = new Date(nextEnd.getTime() + WEEK_IN_MS);
+      }
+
+      return slot.update(
+        {
+          slotStart: nextStart,
+          slotEnd: nextEnd,
+          status: "open",
+        },
+        options,
+      );
+    }),
+  );
+
+  return expiredSlots;
 };
 
 export const createAvailability = async (
@@ -36,6 +93,8 @@ export const listAvailability = async ({ consultantId, status }, options = {}) =
   if (!consultantId) {
     throw createError(400, "consultantId is required to retrieve availability");
   }
+
+  await reopenExpiredAvailabilitySlots({ consultantId }, options);
 
   const where = { consultantId };
   if (status) {
